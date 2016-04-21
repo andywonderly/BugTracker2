@@ -279,3 +279,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.config
+App_Start/IdentityConfig.cs
