@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace BugTracker2.Models
 {
+
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
@@ -70,6 +73,10 @@ namespace BugTracker2.Models
         public string Email { get; set; }
 
         [Required]
+        [Display(Name = "Display name")]
+        public string DisplayName { get; set; }
+
+        [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
@@ -77,7 +84,7 @@ namespace BugTracker2.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -96,7 +103,7 @@ namespace BugTracker2.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }
@@ -109,4 +116,21 @@ namespace BugTracker2.Models
         [Display(Name = "Email")]
         public string Email { get; set; }
     }
+
+    public class UserDropDownViewModel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+
+    }
+
+    public class AdminUserViewModel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public MultiSelectList roles { get; set; }
+        public string[] selected { get; set; }
+
+    }
+    
 }

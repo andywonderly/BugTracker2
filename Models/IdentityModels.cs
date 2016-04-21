@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace BugTracker2.Models
 {
@@ -20,7 +22,12 @@ namespace BugTracker2.Models
             // Add custom user claims here
             return userIdentity;
         }
+
+        
+        
     }
+
+
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

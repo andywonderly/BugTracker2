@@ -1,0 +1,8 @@
+﻿@model BugTracker2.Models.AdminUserViewModel
+@{
+    ViewBag.Title = "EditUser";
+}
+
+<h2>EditUser</h2>
+
+@Html.ListBox("selected",Model.roles)

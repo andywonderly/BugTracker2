@@ -39,6 +39,21 @@ namespace BugTracker2.Migrations
                 roleManager.Create(new IdentityRole { Name = "Admin" });
             }
 
+            if (!context.Users.Any(r => r.DisplayName == "Project Manager"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Project Manager" });
+            }
+
+            if (!context.Users.Any(r => r.DisplayName == "Developer"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Developer" });
+            }
+
+            if (!context.Users.Any(r => r.DisplayName == "Submitter"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Submitter" });
+            }
+
             var userManager = new UserManager<ApplicationUser>(
                     new UserStore<ApplicationUser>(context));
 
