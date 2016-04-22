@@ -1,7 +1,12 @@
 ﻿using BugTracker2.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System.Linq;
 using System.Web.Mvc;
-
+using Microsoft.AspNet.Identity.Owin;
+using System.Web;
+using System.Collections.Generic;
+using System.Web.Security;
 
 namespace BugTracker2.Controllers
 {
@@ -10,14 +15,22 @@ namespace BugTracker2.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
         
         // GET: Admin
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            var users = db.Users.ToList();
-            return View();
+            var user = db.Users;
+            return View(user);
         }
 
-        public ActionResult EditUser(string id = "59d21208-39c4-404c-bcca-cb563b2428b3")
+
+        //public ActionResult EditUser(string id = "59d21208-39c4-404c-bcca-cb563b2428b3")
+        [Authorize(Roles = "Admin")]
+        public ActionResult EditUser(string id)
         {
+            if(id == null)
+            {
+                RedirectToAction("Index");
+            }
             var user = db.Users.Find(id);
             UserRolesHelper helper = new UserRolesHelper(db);
             var model = new AdminUserViewModel();
@@ -28,10 +41,65 @@ namespace BugTracker2.Controllers
             return View(model);
         }
 
-        public ActionResult ListUsers()
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditUser([Bind(Include="selected, Id, Name, roles")] AdminUserViewModel model)
         {
-            var user = db.Users;
-            return View(user);
+            if (ModelState.IsValid)
+            {
+                //Declare variable of the application context
+                //var context = HttpContext.GetOwinContext().Get<ApplicationDbContext>();
+                var context = this.db;
+
+                //Create new roleManager to allow access to helper functions
+                var roleManager = new UserRolesHelper(context);
+
+                //List of roles to be added
+                List<string> rolesToAdd = new List<string>();
+
+                //List of roles to be removed.  Starts out as all roles
+                //FUTURE UPDATE - get roles from role list rather than typing the all out.
+                List<string> rolesToRemove = new List<string> { "Admin", "Developer", "Project Manager", "Submitter" };
+
+                //The following commented-out code was an attempt to get the existing roles as a list
+                //var roleStore = new RoleStore<IdentityRole>(context);
+                //var roleMngr = new RoleManager<IdentityRole>(roleStore);
+                //var roles = roleMngr.Roles.ToList();
+
+
+                //Add the roles to be added to rolesToAdd list
+                foreach (var item in model.selected)
+                    rolesToAdd.Add(item);
+
+                //remove roles to be added from rolesToRemove list
+                foreach (var item in rolesToAdd)
+                {
+                    rolesToRemove.Remove(item);
+                }
+
+                //Add user to role if user is not in the role already
+                foreach (var item in rolesToAdd)
+                {
+                    if (!roleManager.IsUserInRole(model.Id, item))
+                        roleManager.AddUserToRole(model.Id, item);
+                }
+
+                //Remove user from role if the role was not selected but they are in the role
+                foreach (var item in rolesToRemove)
+                {
+                    if (roleManager.IsUserInRole(model.Id, item))
+                        roleManager.RemoveUserFromRole(model.Id, item);
+                }
+                
+                
+                db.SaveChanges();
+                
+            }
+
+            return RedirectToAction("Index");
         }
+
+
     }
 }
