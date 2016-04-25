@@ -12,6 +12,10 @@ namespace BugTracker2.Models
         public string PhoneNumber { get; set; }
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
+        public string DisplayName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public BugTracker2.Models.ChangeDisplayNameViewModel changeDisplayNameViewModel { get; set; }
     }
 
     public class ManageLoginsViewModel
@@ -83,4 +87,6 @@ namespace BugTracker2.Models
         public string SelectedProvider { get; set; }
         public ICollection<System.Web.Mvc.SelectListItem> Providers { get; set; }
     }
+
 }
+

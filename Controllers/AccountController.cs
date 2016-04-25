@@ -17,6 +17,7 @@ namespace BugTracker2.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         public AccountController()
         {
@@ -51,6 +52,9 @@ namespace BugTracker2.Controllers
                 _userManager = value;
             }
         }
+
+
+
 
         //
         // GET: /Account/Login
@@ -134,6 +138,7 @@ namespace BugTracker2.Controllers
             }
         }
 
+        
         //
         // GET: /Account/Register
         [AllowAnonymous]

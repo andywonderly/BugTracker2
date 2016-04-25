@@ -15,6 +15,7 @@ namespace BugTracker2.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         public ManageController()
         {
@@ -25,6 +26,8 @@ namespace BugTracker2.Controllers
             UserManager = userManager;
             SignInManager = signInManager;
         }
+
+
 
         public ApplicationSignInManager SignInManager
         {
@@ -74,6 +77,41 @@ namespace BugTracker2.Controllers
             };
             return View(model);
         }
+
+        //
+        //GET: ChangeDisplayName
+        [Authorize]
+        public ActionResult ChangeDisplayName()
+        {
+
+            return View();
+
+        }
+
+        //
+        //POST:  ChangeDisplayName
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ChangeDisplayName(IndexViewModel user)
+        {
+            ApplicationUser Model = UserManager.FindById(User.Identity.GetUserId());
+
+            Model.DisplayName = user.DisplayName;
+            Model.FirstName = user.FirstName;
+            Model.LastName = user.LastName;
+
+            IdentityResult result = await UserManager.UpdateAsync(Model);
+
+            if (!result.Succeeded)
+            {
+                AddErrors(result);
+
+            }
+            
+            return RedirectToAction("Index"); // <--Probably incorrect, will fix later
+        }
+        
 
         //
         // POST: /Manage/RemoveLogin

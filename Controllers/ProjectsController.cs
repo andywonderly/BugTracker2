@@ -16,7 +16,8 @@ namespace BugTracker2.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Admin
+        // GET: Index / projects list
+        [Authorize(Roles = "Admin, Project Manager, Developer")]
         public ActionResult Index()
         {
             var projects = db.Projects.ToList();

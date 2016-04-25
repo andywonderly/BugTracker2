@@ -89,7 +89,18 @@ namespace BugTracker2.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class ResetPasswordViewModel
+    public class ChangeDisplayNameViewModel
+    {
+        //[Required]
+        //[Display(Name = "Display name")]
+        public string DisplayName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Id { get; set; }
+    }
+
+
+public class ResetPasswordViewModel
     {
         [Required]
         [EmailAddress]

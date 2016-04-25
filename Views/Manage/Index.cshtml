@@ -10,6 +10,14 @@
     <h4>Change your account settings</h4>
     <hr />
     <dl class="dl-horizontal">
+        <dt>
+            Display name:
+        </dt>
+        
+        <dd>
+            @Html.ActionLink("Edit display name", "ChangeDisplayName", "Manage")
+        </dd>
+        
         <dt>Password:</dt>
         <dd>
             [
@@ -28,6 +36,7 @@
             @Model.Logins.Count [
             @Html.ActionLink("Manage", "ManageLogins") ]
         </dd>
+        
         @*
             Phone Numbers can used as a second factor of verification in a two-factor authentication system.
              
