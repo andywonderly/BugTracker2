@@ -141,6 +141,91 @@ namespace BugTracker2.Controllers
             return RedirectToAction("EditProject", new { id = post2.Id });
         }
 
+        // GET:  Edit Project Users!
+        [Authorize(Roles = "Admin, Project Manager")]
+        public ActionResult EditProjectUsers(string id)
+        {
+            if (id == null)
+            {
+                RedirectToAction("Index");
+            }
+            var project = db.ProjectUsers.Find(id);
+            UserRolesHelper helper = new UserRolesHelper(db);
+            var model = new ProjectsViewModel();
+
+            List<string> users = new List<string>();
+
+            foreach( var u in db.Users)
+            {
+                users.Add(u.DisplayName);
+            }
+
+            model.UserId = project.UserId;
+            model.Id = project.Id;
+            model.selected = users;
+            model.roles = new MultiSelectList(db.Roles, "Name", "Name", model.selected);
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ProjectUsers([Bind(Include = "selected, Id, Name, roles")] AdminUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                //Declare variable of the application context
+                //var context = HttpContext.GetOwinContext().Get<ApplicationDbContext>();
+                var context = this.db;
+
+                //Create new roleManager to allow access to helper functions
+                var roleManager = new UserRolesHelper(context);
+
+                //List of roles to be added
+                List<string> rolesToAdd = new List<string>();
+
+                //List of roles to be removed.  Starts out as all roles
+                //FUTURE UPDATE - get roles from role list rather than typing the all out.
+                List<string> rolesToRemove = new List<string> { "Admin", "Developer", "Project Manager", "Submitter" };
+
+                //The following commented-out code was an attempt to get the existing roles as a list
+                //var roleStore = new RoleStore<IdentityRole>(context);
+                //var roleMngr = new RoleManager<IdentityRole>(roleStore);
+                //var roles = roleMngr.Roles.ToList();
+
+
+                //Add the roles to be added to rolesToAdd list
+                foreach (var item in model.selected)
+                    rolesToAdd.Add(item);
+
+                //remove roles to be added from rolesToRemove list
+                foreach (var item in rolesToAdd)
+                {
+                    rolesToRemove.Remove(item);
+                }
+
+                //Add user to role if user is not in the role already
+                foreach (var item in rolesToAdd)
+                {
+                    if (!roleManager.IsUserInRole(model.Id, item))
+                        roleManager.AddUserToRole(model.Id, item);
+                }
+
+                //Remove user from role if the role was not selected but they are in the role
+                foreach (var item in rolesToRemove)
+                {
+                    if (roleManager.IsUserInRole(model.Id, item))
+                        roleManager.RemoveUserFromRole(model.Id, item);
+                }
+
+
+                db.SaveChanges();
+
+            }
+
+            return RedirectToAction("Index");
+        }
+
     }
 
 }

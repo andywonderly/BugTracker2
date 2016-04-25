@@ -10,7 +10,7 @@ namespace BugTracker2.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("Index","Admin");
+            return View();
         }
 
         public ActionResult About()

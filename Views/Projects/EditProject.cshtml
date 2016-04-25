@@ -43,6 +43,20 @@
     </div>
 }
 
+@using (Html.BeginForm("EditUsers", "Projects", FormMethod.Post))
+{
+
+    @Html.AntiForgeryToken()
+
+    <div>
+        @Html.ListBoxFor(x => x.selected, Model.roles)
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.Name)
+
+        <input type="submit" value="Submit" />
+    </div>
+}
+
 <div>
     @Html.ActionLink("Back to project list", "Index")
 </div>
