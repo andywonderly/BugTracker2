@@ -52,7 +52,7 @@ namespace BugTracker2.Models
         public DbSet<TicketPriorities> TicketPriorities { get; set; }
         public DbSet<TicketTypes> TicketTypes { get; set; }
         public DbSet<Projects> Projects { get; set; }
-        public DbSet<ProjectUsers> ProjectUsers { get; set; }
+        //public DbSet<ApplicationUser> ProjectUsers { get; set; }
         
     }
 }

@@ -18,21 +18,59 @@ namespace BugTracker2.Models.Helpers
 
             ApplicationUser user = db.Users.Find(userId);
             Projects project = db.Projects.Find(projectId);
-            project.Users.Add(user);
+            IEnumerable<ApplicationUser> projectUsers = project.Users.ToList();
+            bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
+            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
+
+            if (!projectUsersHelper.IsUserOnProject(user.Id, project.Id)) //only add user if they are not already on the project
+            {
+                project.Users.Add(user);
+                db.SaveChanges();
+            }
+            
         }
 
         public void RemoveUserFromProject(string projectId, string userId)
         {
             ApplicationUser user = db.Users.Find(userId);
             Projects project = db.Projects.Find(projectId);
-            project.Users.Remove(user);
+            IEnumerable<ApplicationUser> projectUsers = project.Users.ToList();
+            bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
+            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
+
+            if (projectUsersHelper.IsUserOnProject(user.Id, project.Id))
+            {
+                project.Users.Remove(user);
+                db.SaveChanges();
+            }
         }
 
-        public List<ApplicationUser> ListProjectUsers(string projectId)
+        public IList<string> ListProjectUsers(string projectId)
         {
             Projects project = db.Projects.Find(projectId);
-            var users = project.Users.ToList();
-            return users;
+            IList<string> projectUserList = new List<string>();
+
+            //projectUserList = project.Users.Where(x => x.Id == )
+
+            foreach (var item in project.Users)
+                projectUserList.Add(item.DisplayName);
+            
+            return projectUserList;
+        }
+
+        public IList<string> ListNonProjectUsers(string projectId)
+        {
+            Projects project = db.Projects.Find(projectId);
+            List<ApplicationUser> userList = db.Users.ToList(); //list of all users
+            IList<string> nonUserDisplayNames = new List<string>();
+
+            foreach (var item in project.Users) //remove project users from all users to get non-project users
+                userList.Remove(item);
+
+            foreach (var item in userList) //add non-project user display names to nonUserDisplayNames
+                nonUserDisplayNames.Add(item.DisplayName);
+
+            return nonUserDisplayNames;
         }
 
         public List<Projects> ListUserProjects(string userId)
@@ -43,7 +81,14 @@ namespace BugTracker2.Models.Helpers
             return projectsList;
         }
 
-        
+        public bool IsUserOnProject(string userId, int projectId)
+        {
+            var project = db.Projects.Find(projectId);
+            var flag = project.Users.Any(u => u.Id == userId);
+            return (flag);
+        }
+
+
     }
 
 

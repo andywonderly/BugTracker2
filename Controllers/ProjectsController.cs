@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Web.Security;
 using System;
 using System.Net;
+using BugTracker2.Models.Helpers;
+using Newtonsoft.Json.Linq;
 
 namespace BugTracker2.Controllers
 {
@@ -149,28 +151,21 @@ namespace BugTracker2.Controllers
             {
                 RedirectToAction("Index");
             }
-            var project = db.ProjectUsers.Find(id);
-            UserRolesHelper helper = new UserRolesHelper(db);
+
+            var project = db.Projects.Find(id);
+            var helper = new ProjectUsersHelper();
             var model = new ProjectsViewModel();
 
-            List<string> users = new List<string>();
-
-            foreach( var u in db.Users)
-            {
-                users.Add(u.DisplayName);
-            }
-
-            model.UserId = project.UserId;
-            model.Id = project.Id;
-            model.selected = users;
-            model.roles = new MultiSelectList(db.Roles, "Name", "Name", model.selected);
+            model.ProjectId = project.Id.ToString();
+            model.selected = helper.ListProjectUsers(id).ToArray();
+            model.Users = new MultiSelectList(db.Users, "DisplayName", "DisplayName", model.selected);
             return View(model);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ProjectUsers([Bind(Include = "selected, Id, Name, roles")] AdminUserViewModel model)
+        public ActionResult EditProjectUsers([Bind(Include = "selected, Id, Name, roles")] ProjectsViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -178,44 +173,49 @@ namespace BugTracker2.Controllers
                 //var context = HttpContext.GetOwinContext().Get<ApplicationDbContext>();
                 var context = this.db;
 
-                //Create new roleManager to allow access to helper functions
-                var roleManager = new UserRolesHelper(context);
+                //Create new helper to allow access to helper functions
+                var helper = new ProjectUsersHelper();
 
-                //List of roles to be added
-                List<string> rolesToAdd = new List<string>();
+                //List of users to be added
+                List<string> usersToAdd = new List<string>();
 
                 //List of roles to be removed.  Starts out as all roles
-                //FUTURE UPDATE - get roles from role list rather than typing the all out.
-                List<string> rolesToRemove = new List<string> { "Admin", "Developer", "Project Manager", "Submitter" };
+                //FUTURE UPDATE - get users from user list rather than typing them all out.
+                List<string> usersToRemove = new List<string>();
 
-                //The following commented-out code was an attempt to get the existing roles as a list
-                //var roleStore = new RoleStore<IdentityRole>(context);
-                //var roleMngr = new RoleManager<IdentityRole>(roleStore);
-                //var roles = roleMngr.Roles.ToList();
+                foreach (var item in db.Users)
+                    usersToRemove.Add(item.DisplayName);
 
-
-                //Add the roles to be added to rolesToAdd list
+                //Add the users to be added to users list
                 foreach (var item in model.selected)
-                    rolesToAdd.Add(item);
+                    usersToAdd.Add(item);
 
-                //remove roles to be added from rolesToRemove list
-                foreach (var item in rolesToAdd)
+                //remove users to be added from usersToRemove list
+                foreach (var item in usersToAdd)
                 {
-                    rolesToRemove.Remove(item);
+                    usersToRemove.Remove(item);
                 }
 
-                //Add user to role if user is not in the role already
-                foreach (var item in rolesToAdd)
+                //Add user to project if user is not on the project already************
+
+                IEnumerable<ApplicationUser> userList = db.Users;
+
+
+                foreach (var item in usersToAdd)
                 {
-                    if (!roleManager.IsUserInRole(model.Id, item))
-                        roleManager.AddUserToRole(model.Id, item);
+                    ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
+                    
+                    if (!helper.IsUserOnProject(userToAdd.Id, model.Id))  //UserID, projectID
+                        helper.AddUserToProject(model.UserId, model.Id.ToString());
                 }
 
-                //Remove user from role if the role was not selected but they are in the role
-                foreach (var item in rolesToRemove)
+                //Remove user from project if the user was not selected but they are in the project
+                foreach (var item in usersToRemove)
                 {
-                    if (roleManager.IsUserInRole(model.Id, item))
-                        roleManager.RemoveUserFromRole(model.Id, item);
+                    ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
+
+                    if (helper.IsUserOnProject(userToAdd.Id, model.Id))  //UserID, projectID
+                        helper.RemoveUserFromProject(model.UserId, model.Id.ToString());
                 }
 
 
