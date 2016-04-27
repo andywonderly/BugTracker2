@@ -18,5 +18,6 @@ namespace BugTracker2.Models
         public int TicketStatusId { get; set; }
         public int OwnerUserId { get; set; }
         public int AssignedToUserId { get; set; }
+        public virtual ICollection<ApplicationUser> Users { get; set; }
     }
 }

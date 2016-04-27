@@ -15,7 +15,18 @@
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.Created)
+        @Html.HiddenFor(model => model.Updated)
+        @Html.HiddenFor(model => model.ProjectId)
+        @Html.HiddenFor(model => model.TicketTypeId)
+        @Html.HiddenFor(model => model.TicketPriorityId)
+        @Html.HiddenFor(model => model.TicketStatusId)
+        @Html.HiddenFor(model => model.OwnerUserId)
+        @Html.HiddenFor(model => model.AssignedToUserId)
 
+
+        
+        <!--
         <div class="form-group">
             @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -95,6 +106,8 @@
                 @Html.ValidationMessageFor(model => model.AssignedToUserId, "", new { @class = "text-danger" })
             </div>
         </div>
+
+        -->
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">

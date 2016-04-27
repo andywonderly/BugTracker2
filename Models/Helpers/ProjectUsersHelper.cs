@@ -11,18 +11,18 @@ namespace BugTracker2.Models.Helpers
     public class ProjectUsersHelper
     {
 
-        private ApplicationDbContext db;
+        ApplicationDbContext db = new ApplicationDbContext();
 
-        public void AddUserToProject(string projectId, string userId)
+        public void AddUserToProject(int projectId, string userId)
         {
 
             ApplicationUser user = db.Users.Find(userId);
-            Projects project = db.Projects.Find(projectId);
+            Projects project = db.Projects.First(p => p.Id == projectId);
             IEnumerable<ApplicationUser> projectUsers = project.Users.ToList();
             bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
             ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
 
-            if (!projectUsersHelper.IsUserOnProject(user.Id, project.Id)) //only add user if they are not already on the project
+            if (!projectUsersHelper.IsUserOnProject(project.Id, user.Id)) //only add user if they are not already on the project
             {
                 project.Users.Add(user);
                 db.SaveChanges();
@@ -30,24 +30,24 @@ namespace BugTracker2.Models.Helpers
             
         }
 
-        public void RemoveUserFromProject(string projectId, string userId)
+        public void RemoveUserFromProject(int projectId, string userId)
         {
             ApplicationUser user = db.Users.Find(userId);
-            Projects project = db.Projects.Find(projectId);
+            Projects project = db.Projects.FirstOrDefault(p => p.Id == projectId);
             IEnumerable<ApplicationUser> projectUsers = project.Users.ToList();
             bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
             ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
 
-            if (projectUsersHelper.IsUserOnProject(user.Id, project.Id))
+            if (projectUsersHelper.IsUserOnProject(project.Id, user.Id))
             {
                 project.Users.Remove(user);
                 db.SaveChanges();
             }
         }
 
-        public IList<string> ListProjectUsers(string projectId)
+        public IList<string> ListProjectUsers(int projectId)
         {
-            Projects project = db.Projects.Find(projectId);
+            Projects project = db.Projects.First(p => p.Id == projectId);
             IList<string> projectUserList = new List<string>();
 
             //projectUserList = project.Users.Where(x => x.Id == )
@@ -58,9 +58,9 @@ namespace BugTracker2.Models.Helpers
             return projectUserList;
         }
 
-        public IList<string> ListNonProjectUsers(string projectId)
+        public IList<string> ListNonProjectUsers(int projectId)
         {
-            Projects project = db.Projects.Find(projectId);
+            Projects project = db.Projects.FirstOrDefault(p => p.Id == projectId);
             List<ApplicationUser> userList = db.Users.ToList(); //list of all users
             IList<string> nonUserDisplayNames = new List<string>();
 
@@ -81,10 +81,10 @@ namespace BugTracker2.Models.Helpers
             return projectsList;
         }
 
-        public bool IsUserOnProject(string userId, int projectId)
+        public bool IsUserOnProject(int projectId, string userId)
         {
-            var project = db.Projects.Find(projectId);
-            var flag = project.Users.Any(u => u.Id == userId);
+            var project = db.Projects.FirstOrDefault(p => p.Id == projectId);
+            var flag = project.Users.Any(u => u.Id == userId.ToString());
             return (flag);
         }
 

@@ -11,7 +11,7 @@ namespace BugTracker2.Models
 
     public class UserRolesHelper
     {
-            private ApplicationDbContext db;
+            //private ApplicationDbContext db;
             private UserManager<ApplicationUser> userManager;
             private RoleManager<IdentityRole> roleManager;
 

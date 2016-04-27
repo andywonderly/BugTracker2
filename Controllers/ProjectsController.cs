@@ -22,8 +22,57 @@ namespace BugTracker2.Controllers
         [Authorize(Roles = "Admin, Project Manager, Developer")]
         public ActionResult Index()
         {
-            var projects = db.Projects.ToList();
-            return View(projects);
+            //Determine current user role(s) to determine which projects they see
+
+            //Get current user id
+            var currentUser = System.Web.HttpContext.Current.User.Identity.GetUserId();
+
+            //Create helper objects to allow access to helper functions
+            UserRolesHelper userRolesHelper = new UserRolesHelper(db);
+            ProjectsHelper projectsHelper = new ProjectsHelper();
+
+            //Get the list of current user roles
+            var currentUserRoles = userRolesHelper.ListUserRoles(currentUser);
+            
+            if (currentUserRoles == null)
+                return View();
+
+            if (currentUserRoles != null)
+                foreach (var item in currentUserRoles)
+                    if (item == "Admin")
+                    {
+                        //var projects = db.Projects.ToList();
+                        var projects = db.Projects.ToList();
+                        return View(projects); //return all projects if user is Admin
+                    }
+
+            if (currentUserRoles != null)
+            {
+                bool isPMOrDeveloper = false; //bool for whether the current user is a PM or developer
+                                                           //Default is false
+
+                foreach (var item in currentUserRoles) //test all roles for PM or dev.
+                    if (item == "Project Manager" || item == "Developer")
+                        isPMOrDeveloper = true; //if we hit one, set to true
+
+                    if(isPMOrDeveloper)
+                    {
+                        var projectsList = projectsHelper.ListUserProjects(currentUser); //Get user project list
+                        List<Projects> projects = new List<Projects>(); //Create new list to add those projects to
+
+                        foreach (var item2 in projects) //add them
+                            projects.Add(item2);
+
+                        return View(projects); //return them
+                    }
+            }
+
+
+
+
+
+            
+            return View();
         }
 
         public ActionResult ListProjects()
@@ -139,33 +188,40 @@ namespace BugTracker2.Controllers
                 return RedirectToAction("EditProject", new { id = project.Id });
             }
 
-            var post2 = db.Projects.Find(project.Id);
+            var post2 = db.Projects.FirstOrDefault(p => p.Id == project.Id);
             return RedirectToAction("EditProject", new { id = post2.Id });
         }
 
         // GET:  Edit Project Users!
         [Authorize(Roles = "Admin, Project Manager")]
-        public ActionResult EditProjectUsers(string id)
+        public ActionResult EditProjectUsers(int id)
         {
-            if (id == null)
+            //if (id == null)
+            //{
+            //    return RedirectToAction("Index");
+            //}
+
+            Projects project = db.Projects.FirstOrDefault(p => p.Id == id);
+
+            if ( project == null)
             {
-                RedirectToAction("Index");
+                return RedirectToAction("Index");
             }
 
-            var project = db.Projects.Find(id);
             var helper = new ProjectUsersHelper();
-            var model = new ProjectsViewModel();
+            var model = new ProjectUsersViewModel();
 
-            model.ProjectId = project.Id.ToString();
+            //model.ProjectId = project.Id.ToString();
             model.selected = helper.ListProjectUsers(id).ToArray();
-            model.Users = new MultiSelectList(db.Users, "DisplayName", "DisplayName", model.selected);
+            model.users = new MultiSelectList(db.Users, "DisplayName", "DisplayName", model.selected);
+            model.Name = project.Name;
             return View(model);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProjectUsers([Bind(Include = "selected, Id, Name, roles")] ProjectsViewModel model)
+        public ActionResult EditProjectUsers([Bind(Include = "selected, Id, Name, roles")] ProjectUsersViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -204,26 +260,26 @@ namespace BugTracker2.Controllers
                 foreach (var item in usersToAdd)
                 {
                     ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
-                    
-                    if (!helper.IsUserOnProject(userToAdd.Id, model.Id))  //UserID, projectID
-                        helper.AddUserToProject(model.UserId, model.Id.ToString());
+
+                    if (!helper.IsUserOnProject(model.Id, userToAdd.Id))
+                        helper.AddUserToProject(model.Id, userToAdd.Id);
                 }
 
                 //Remove user from project if the user was not selected but they are in the project
                 foreach (var item in usersToRemove)
                 {
-                    ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
+                    ApplicationUser userToRemove = userList.FirstOrDefault(n => item == n.DisplayName);
 
-                    if (helper.IsUserOnProject(userToAdd.Id, model.Id))  //UserID, projectID
-                        helper.RemoveUserFromProject(model.UserId, model.Id.ToString());
+                    if (helper.IsUserOnProject(model.Id, userToRemove.Id))
+                        helper.RemoveUserFromProject(model.Id, userToRemove.Id);
                 }
 
 
                 db.SaveChanges();
 
             }
-
-            return RedirectToAction("Index");
+            return RedirectToAction("EditProjectUsers", new { model.Id });
+            //return RedirectToAction("Index");
         }
 
     }

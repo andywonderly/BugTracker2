@@ -1,10 +1,12 @@
-﻿using System.Data.Entity;
+﻿using BugTracker2.Models;
+using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data.Entity.ModelConfiguration.Conventions;
 
 namespace BugTracker2.Models
 {
@@ -14,6 +16,8 @@ namespace BugTracker2.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string DisplayName { get; set; }
+        public virtual ICollection<Projects> Projects { get; set; }
+        public virtual ICollection<Tickets> Tickets { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
@@ -51,8 +55,21 @@ namespace BugTracker2.Models
         public DbSet<TicketStatuses> TicketStatuses { get; set; }
         public DbSet<TicketPriorities> TicketPriorities { get; set; }
         public DbSet<TicketTypes> TicketTypes { get; set; }
+        
+        /*
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            //base.OnModelCreating(modelBuilder);
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            modelBuilder.Entity<Projects>()
+                .HasMany(c => c.Users).WithMany(i => i.Projects)
+                .Map(t => t.MapLeftKey("UserId"))
+        }
+        */
+
+
         public DbSet<Projects> Projects { get; set; }
         //public DbSet<ApplicationUser> ProjectUsers { get; set; }
-        
+
     }
 }

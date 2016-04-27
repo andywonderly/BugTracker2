@@ -8,7 +8,7 @@ namespace BugTracker2.Models
 {
     public class ProjectUsersViewModel
     {
-            public string Id { get; set; }
+            public int Id { get; set; }
             public string Name { get; set; }
             public MultiSelectList users { get; set; }
             public string[] selected { get; set; }
