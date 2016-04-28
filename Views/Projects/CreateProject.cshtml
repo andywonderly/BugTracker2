@@ -1,4 +1,4 @@
-﻿@model BugTracker2.Models.Projects
+﻿@model BugTracker2.Models.ProjectsViewModel
 
 @{
     ViewBag.Title = "CreateProject";
@@ -23,6 +23,14 @@
                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                 <!-- </div> -->
             </div>
+        </div>
+
+        <div>
+            Assign a project manager: <br />
+            @Html.DropDownListFor(
+            x => x.selected,
+            Model.users)
+            @*"Select Project Manager")*@
         </div>
 
         

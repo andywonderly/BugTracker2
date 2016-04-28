@@ -10,9 +10,11 @@ namespace BugTracker2.Models
     {
         public int Id { get; set; }
         public int ProjectId { get; set; }
-        public string UserId { get; set; }
-        public MultiSelectList Users { get; set; }
-        public string[] selected { get; set; }
+        public int UserId { get; set; }
+        public IEnumerable<SelectListItem> users { get; set; }
+        public string selected { get; set; }
+        public string Name { get; set; }
+        public string ProjectManagerUserId { get; set; }
     }
 
 

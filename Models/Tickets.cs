@@ -12,12 +12,12 @@ namespace BugTracker2.Models
         public string Description { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Updated { get; set; }
-        public int ProjectId { get; set; }
-        public int TicketTypeId { get; set; }
-        public int TicketPriorityId { get; set; }
-        public int TicketStatusId { get; set; }
-        public int OwnerUserId { get; set; }
-        public int AssignedToUserId { get; set; }
+        public string ProjectId { get; set; }
+        public string TicketTypeId { get; set; }
+        public string TicketPriorityId { get; set; }
+        public string TicketStatusId { get; set; }
+        public string OwnerUserId { get; set; }
+        public string AssignedToUserId { get; set; }
         public virtual ICollection<ApplicationUser> Users { get; set; }
     }
 }

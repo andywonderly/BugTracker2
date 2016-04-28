@@ -16,11 +16,11 @@ namespace BugTracker2.Models.Helpers
         public void AddUserToProject(int projectId, string userId)
         {
 
-            ApplicationUser user = db.Users.Find(userId);
-            Projects project = db.Projects.First(p => p.Id == projectId);
-            IEnumerable<ApplicationUser> projectUsers = project.Users.ToList();
-            bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
-            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
+            ApplicationUser user = db.Users.Find(userId);  //get the user by userId
+            Projects project = db.Projects.First(p => p.Id == projectId); //get the project by projectId
+            IEnumerable<ApplicationUser> projectUsers = project.Users.ToList(); //get a list of all project users
+            //bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
+            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper(); //instantiate the helper
 
             if (!projectUsersHelper.IsUserOnProject(project.Id, user.Id)) //only add user if they are not already on the project
             {
@@ -35,10 +35,10 @@ namespace BugTracker2.Models.Helpers
             ApplicationUser user = db.Users.Find(userId);
             Projects project = db.Projects.FirstOrDefault(p => p.Id == projectId);
             IEnumerable<ApplicationUser> projectUsers = project.Users.ToList();
-            bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
+            //bool userIsOnProject = projectUsers.Any(n => n.Id == user.Id);
             ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
 
-            if (projectUsersHelper.IsUserOnProject(project.Id, user.Id))
+            if (projectUsersHelper.IsUserOnProject(project.Id, user.Id)) //Only remove user if they are on the project
             {
                 project.Users.Remove(user);
                 db.SaveChanges();
@@ -86,6 +86,17 @@ namespace BugTracker2.Models.Helpers
             var project = db.Projects.FirstOrDefault(p => p.Id == projectId);
             var flag = project.Users.Any(u => u.Id == userId.ToString());
             return (flag);
+        }
+
+        public List<string> ListAllUserDisplayNames()
+        {
+            var allUsers = db.Users.ToList();
+            List<string> allUserDisplayNames = new List<string>();
+
+            foreach (var item in allUsers)
+                allUserDisplayNames.Add(item.DisplayName);
+
+            return allUserDisplayNames;
         }
 
 

@@ -85,13 +85,28 @@ namespace BugTracker2.Controllers
         [Authorize(Roles="Admin")]
         public ActionResult CreateProject()
         {
-            return View();
+            ProjectUsersHelper helper = new ProjectUsersHelper();
+            var model = new ProjectsViewModel();
+
+            List<ApplicationUser> allUsers = db.Users.ToList();
+
+            //var allUsers = helper.ListAllUserDisplayNames().ToArray();
+
+            List<SelectListItem> users = new List<SelectListItem>();
+
+            foreach (var item in allUsers)
+                users.Add(new SelectListItem { Text = item.DisplayName, Value = item.Id });
+
+            model.users = users;
+            model.selected = db.Users.First().DisplayName.ToString();
+
+            return View(model);
         }
 
         //POST: Projects/CreateProject
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public ActionResult CreateProject([Bind(Include = "Id, Name")] Projects project)
+        public ActionResult CreateProject([Bind(Include = "Id, Name, selected")] ProjectsViewModel project)
         {
             if (String.IsNullOrWhiteSpace(project.Name))
             {
@@ -101,7 +116,18 @@ namespace BugTracker2.Controllers
 
             if (ModelState.IsValid)
             {
-                db.Projects.Add(project);
+                ApplicationUser projectManager = db.Users.FirstOrDefault(n => n.DisplayName == project.selected);
+                project.ProjectManagerUserId = projectManager.Id;
+
+                var projectToAdd = new Projects();
+
+                projectToAdd.Id = project.ProjectId;
+                projectToAdd.Name = project.Name;
+                projectToAdd.ProjectManagerUserId = project.ProjectManagerUserId;
+                
+
+
+                db.Projects.Add(projectToAdd);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -235,16 +261,18 @@ namespace BugTracker2.Controllers
                 //List of users to be added
                 List<string> usersToAdd = new List<string>();
 
-                //List of roles to be removed.  Starts out as all roles
-                //FUTURE UPDATE - get users from user list rather than typing them all out.
+                //List of users to be removed
                 List<string> usersToRemove = new List<string>();
-
-                foreach (var item in db.Users)
-                    usersToRemove.Add(item.DisplayName);
-
-                //Add the users to be added to users list
+                
+                //Add selected users to be added to usersToAdd list
                 foreach (var item in model.selected)
                     usersToAdd.Add(item);
+
+                var project = db.Projects.Find(model.Id); //new line
+
+                //Add all users to usersToRemove
+                 foreach (var item in project.Users)  //used to be db.Projects instead of project.Users
+                    usersToRemove.Add(item.DisplayName);
 
                 //remove users to be added from usersToRemove list
                 foreach (var item in usersToAdd)
@@ -252,29 +280,28 @@ namespace BugTracker2.Controllers
                     usersToRemove.Remove(item);
                 }
 
-                //Add user to project if user is not on the project already************
-
-                IEnumerable<ApplicationUser> userList = db.Users;
-
+                IEnumerable<ApplicationUser> userList = db.Users; //Create queryable list of all users
 
                 foreach (var item in usersToAdd)
                 {
+                    //Find the user by display name
                     ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
 
-                    if (!helper.IsUserOnProject(model.Id, userToAdd.Id))
-                        helper.AddUserToProject(model.Id, userToAdd.Id);
+                    
+                    if (!helper.IsUserOnProject(model.Id, userToAdd.Id)) //Check whether they're on the project
+                        helper.AddUserToProject(model.Id, userToAdd.Id); //Add them if above condition is false
                 }
 
                 //Remove user from project if the user was not selected but they are in the project
                 foreach (var item in usersToRemove)
                 {
+                    //Find the user by display name
                     ApplicationUser userToRemove = userList.FirstOrDefault(n => item == n.DisplayName);
 
-                    if (helper.IsUserOnProject(model.Id, userToRemove.Id))
-                        helper.RemoveUserFromProject(model.Id, userToRemove.Id);
+                    if (helper.IsUserOnProject(model.Id, userToRemove.Id)) //Check whether they're on the project
+                        helper.RemoveUserFromProject(model.Id, userToRemove.Id); //Remove them if above is true
                 }
-
-
+                
                 db.SaveChanges();
 
             }

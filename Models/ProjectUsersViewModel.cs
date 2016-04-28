@@ -12,6 +12,7 @@ namespace BugTracker2.Models
             public string Name { get; set; }
             public MultiSelectList users { get; set; }
             public string[] selected { get; set; }
+            
     }
 
     public class ProjectListViewModel

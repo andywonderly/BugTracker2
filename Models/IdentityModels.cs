@@ -55,17 +55,6 @@ namespace BugTracker2.Models
         public DbSet<TicketStatuses> TicketStatuses { get; set; }
         public DbSet<TicketPriorities> TicketPriorities { get; set; }
         public DbSet<TicketTypes> TicketTypes { get; set; }
-        
-        /*
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            //base.OnModelCreating(modelBuilder);
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
-            modelBuilder.Entity<Projects>()
-                .HasMany(c => c.Users).WithMany(i => i.Projects)
-                .Map(t => t.MapLeftKey("UserId"))
-        }
-        */
 
 
         public DbSet<Projects> Projects { get; set; }

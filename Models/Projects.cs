@@ -16,8 +16,9 @@ namespace BugTracker2.Models
 
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ProjectManagerUserId { get; set; }
         //public MultiSelectList users { get; set; }
-        //public string[] selected { get; set; }
+        //public string selected { get; set; }
 
         public virtual ICollection<ApplicationUser> Users { get; set; }
 

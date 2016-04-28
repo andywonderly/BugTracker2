@@ -59,14 +59,8 @@ namespace BugTracker2.Controllers
                 List<string> rolesToAdd = new List<string>();
 
                 //List of roles to be removed.  Starts out as all roles
-                //FUTURE UPDATE - get roles from role list rather than typing the all out.
+                //FUTURE UPDATE - get roles from role list rather than typing them all out.
                 List<string> rolesToRemove = new List<string> { "Admin", "Developer", "Project Manager", "Submitter" };
-
-                //The following commented-out code was an attempt to get the existing roles as a list
-                //var roleStore = new RoleStore<IdentityRole>(context);
-                //var roleMngr = new RoleManager<IdentityRole>(roleStore);
-                //var roles = roleMngr.Roles.ToList();
-
 
                 //Add the roles to be added to rolesToAdd list
                 foreach (var item in model.selected)
