@@ -18,10 +18,10 @@ namespace BugTracker2.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
+            
             var user = db.Users;
             return View(user);
         }
-
 
         //public ActionResult EditUser(string id = "59d21208-39c4-404c-bcca-cb563b2428b3")
         [Authorize(Roles = "Admin")]
@@ -31,9 +31,22 @@ namespace BugTracker2.Controllers
             {
                 RedirectToAction("Index");
             }
+
+
+
             var user = db.Users.Find(id);
             UserRolesHelper helper = new UserRolesHelper(db);
             var model = new AdminUserViewModel();
+
+            /*
+            List<Projects> userProjects = new List<Projects>();
+
+            foreach (var item in user.Projects)
+            {
+                userProjects.Add(item);
+            }
+            */
+
             model.Name = user.DisplayName;
             model.Id = user.Id;
             model.selected = helper.ListUserRoles(id).ToArray();

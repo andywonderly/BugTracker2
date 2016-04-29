@@ -7,6 +7,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BugTracker2.Models
 {
@@ -18,6 +19,8 @@ namespace BugTracker2.Models
         public string DisplayName { get; set; }
         public virtual ICollection<Projects> Projects { get; set; }
         public virtual ICollection<Tickets> Tickets { get; set; }
+        [ForeignKey("TicketOwnerId")]
+        public virtual ICollection<Tickets> TicketsOwned { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {

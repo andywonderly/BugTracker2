@@ -21,6 +21,8 @@ namespace BugTracker2.Models
         //public string selected { get; set; }
 
         public virtual ICollection<ApplicationUser> Users { get; set; }
+        public virtual ICollection<Tickets> ProjectTickets { get; set; }
+        //public virtual Tickets Ticket { get; set; }
 
         
           

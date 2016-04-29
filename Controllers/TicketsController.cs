@@ -43,20 +43,32 @@ namespace BugTracker2.Controllers
             }
 
             List<Tickets> tickets = new List<Tickets>();
-            List<Projects> allProjects = db.Projects.ToList();
+            //List<Projects> allProjects = db.Projects.ToList();
+            //List<Tickets> allTickets = db.Tickets.ToList();
 
-            switch(isAdmin)
+
+
+            if(isAdmin)
             {
-                case true:
-                    tickets = db.Tickets.ToList();
-                    break;
-                    
-                case false:
-                    var helper = new TicketUsersHelper();
-                    tickets = helper.ListUserTickets(currentUserId);
-                    break;
-
+                tickets = db.Tickets.ToList(); //If admin, list all tickets
             }
+            else
+            {
+                var helper = new TicketUsersHelper();
+                var ticketsToAdd = new List<Tickets>();
+                IEnumerable<Tickets> allTickets = db.Tickets.ToList();
+
+                foreach(var item in allTickets) //If not admin, cycle through all tickets and test the
+                {                               //corresponding project's users against the current user
+                    if (item.TicketProject != null)
+                    {
+                        foreach (var item2 in item.TicketProject.Users)
+                            if (item2.Id == currentUserId)
+                                ticketsToAdd.Add(item); tickets = db.Tickets.ToList();
+                    }
+                }
+            }
+
 
             return View(tickets);
             
@@ -83,28 +95,54 @@ namespace BugTracker2.Controllers
 
         // GET: Tickets/Create
         [Authorize]
-        public ActionResult Create()
+        public ActionResult CreateTicket()
         {
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+            
+            ViewBag.ProjectId = new SelectList(currentUser.Projects, "Id", "Name");
+            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name");
+            ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "Name");
+            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name");
+
             return View();
         }
 
         // POST: Tickets/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateTicket([Bind(Include = "Id,Title,Description,ProjectId")] Tickets ticket)
+        public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId, TicketStatusId")] TicketsViewModel ticket)
         {
 
             //CREATE VIEW NEEDS A LIST OF PROJECTS TO SELECT FROM
             if (ModelState.IsValid)
             {
-                var currentUser = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
 
-                ticket.Created = DateTimeOffset.Now;
-                ticket.Updated = DateTimeOffset.Now;
-                ticket.OwnerUserId = currentUser;
-                db.Tickets.Add(ticket);
+                var ticketToAdd = new Tickets();
+
+                ticketToAdd.ProjectId = ticket.ProjectId.ToString();
+                ticketToAdd.Created = DateTimeOffset.Now;
+                ticketToAdd.Updated = DateTimeOffset.Now;
+                ticketToAdd.OwnerUserId = currentUserId;
+                ticketToAdd.Title = ticket.Title;
+                ticketToAdd.Description = ticket.Description;
+                ticketToAdd.TicketPriorityId = ticket.TicketPriorityId;
+                ticketToAdd.TicketStatusId = ticket.TicketStatusId;
+                ticketToAdd.TicketTypeId = ticket.TicketTypeId;
+
+                ticketToAdd.TicketOwner = db.Users.Find(currentUserId);
+
+                var projectIdInt = 0;
+                Int32.TryParse(ticketToAdd.ProjectId, out projectIdInt); 
+                    
+                var ticketProject = db.Projects.Find(projectIdInt);
+                ticketToAdd.TicketProject = ticketProject;
+
+                db.Tickets.Add(ticketToAdd);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
