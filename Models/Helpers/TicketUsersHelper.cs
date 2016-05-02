@@ -18,13 +18,13 @@ namespace BugTracker2.Models.Helpers
 
             ApplicationUser user = db.Users.Find(userId);
             Tickets ticket = db.Tickets.First(p => p.Id == ticketId);
-            IEnumerable<ApplicationUser> ticketUsers = ticket.TicketProject.Users.ToList();
+            IEnumerable<ApplicationUser> ticketUsers = ticket.TicketProject.ProjectUsers.ToList();
             bool userIsOnTicket = ticketUsers.Any(n => n.Id == user.Id);
             TicketUsersHelper ticketUsersHelper = new TicketUsersHelper();
 
             if (!ticketUsersHelper.IsUserOnTicket(ticket.Id, user.Id)) //only add user if they are not already on the ticket
             {
-                ticket.TicketProject.Users.Add(user);
+                ticket.TicketProject.ProjectUsers.Add(user);
                 db.SaveChanges();
             }
             
@@ -35,13 +35,13 @@ namespace BugTracker2.Models.Helpers
 
             ApplicationUser user = db.Users.Find(userId);
             Tickets ticket = db.Tickets.First(p => p.Id == ticketId);
-            IEnumerable<ApplicationUser> ticketUsers = ticket.TicketProject.Users.ToList();
+            IEnumerable<ApplicationUser> ticketUsers = ticket.TicketProject.ProjectUsers.ToList();
             bool userIsOnTicket = ticketUsers.Any(n => n.Id == user.Id);
             TicketUsersHelper ticketUsersHelper = new TicketUsersHelper();
 
             if (ticketUsersHelper.IsUserOnTicket(ticket.Id, user.Id)) //only remove user if they are not already on the ticket
             {
-                ticket.TicketProject.Users.Remove(user);
+                ticket.TicketProject.ProjectUsers.Remove(user);
                 db.SaveChanges();
             }
 
@@ -54,7 +54,7 @@ namespace BugTracker2.Models.Helpers
 
             //ticketUserList = ticket.Users.Where(x => x.Id == )
 
-            foreach (var item in ticket.TicketProject.Users)
+            foreach (var item in ticket.TicketProject.ProjectUsers)
                 ticketUserList.Add(item.DisplayName);
             
             return ticketUserList;
@@ -66,7 +66,7 @@ namespace BugTracker2.Models.Helpers
             List<ApplicationUser> userList = db.Users.ToList(); //list of all users
             IList<string> nonUserDisplayNames = new List<string>();
 
-            foreach (var item in ticket.TicketProject.Users) //remove ticket users from all users to get non-ticket users
+            foreach (var item in ticket.TicketProject.ProjectUsers) //remove ticket users from all users to get non-ticket users
                 userList.Remove(item);
 
             foreach (var item in userList) //add non-ticket user display names to nonUserDisplayNames
@@ -78,7 +78,7 @@ namespace BugTracker2.Models.Helpers
         public List<Tickets> ListUserTickets(string userId)
         {
             ApplicationUser user = db.Users.Find(userId);
-            IEnumerable<Tickets> tickets = db.Tickets.Where(x => x.TicketProject.Users == user);
+            IEnumerable<Tickets> tickets = db.Tickets.Where(x => x.TicketProject.ProjectUsers == user);
             List<Tickets> ticketsList = new List<Tickets>();
 
             if (tickets != null)
@@ -89,7 +89,7 @@ namespace BugTracker2.Models.Helpers
         public bool IsUserOnTicket(int ticketId, string userId)
         {
             var ticket = db.Tickets.FirstOrDefault(p => p.Id == ticketId);
-            var flag = ticket.TicketProject.Users.Any(u => u.Id == userId.ToString());
+            var flag = ticket.TicketProject.ProjectUsers.Any(u => u.Id == userId.ToString());
             return (flag);
         }
 

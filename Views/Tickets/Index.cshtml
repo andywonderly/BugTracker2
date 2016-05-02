@@ -94,7 +94,8 @@
                 <td>
                     @Html.ActionLink("Edit", "EditTicket", new { id = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "DeleteTicket", new { id = item.Id })
+                    @Html.ActionLink("Delete", "DeleteTicket", new { id = item.Id })|
+                    @Html.ActionLink("Assign Ticket", "AssignTicket", new { id = item.Id })
                 </td>
             </tr>
         }

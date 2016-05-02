@@ -13,7 +13,7 @@ namespace BugTracker2.Models.Helpers
         public bool IsUserOnProject(string userId, int projectId)
         {
             var project = db.Projects.FirstOrDefault(p=> p.Id == projectId);
-            var flag = project.Users.Any(u => u.Id == userId);
+            var flag = project.ProjectUsers.Any(u => u.Id == userId);
             return (flag);
         }
 

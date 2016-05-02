@@ -224,6 +224,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AssignTicketViewModel.cs" />
     <Compile Include="Models\Helpers\ProjectsHelper.cs" />
     <Compile Include="Models\Helpers\TicketUsersHelper.cs" />
     <Compile Include="Models\Helpers\ProjectUsersHelper.cs" />
@@ -233,6 +234,7 @@
     <Compile Include="Models\Projects.cs" />
     <Compile Include="Models\ProjectsViewModel.cs" />
     <Compile Include="Models\ProjectUsersViewModel.cs" />
+    <Compile Include="Models\TicketAssignees.cs" />
     <Compile Include="Models\TicketAttachments.cs" />
     <Compile Include="Models\TicketComments.cs" />
     <Compile Include="Models\TicketHistories.cs" />
@@ -327,6 +329,7 @@
     <Content Include="Views\Tickets\EditTicket.cshtml" />
     <Content Include="Views\Tickets\Index.cshtml" />
     <Content Include="Views\Projects\EditProjectUsers.cshtml" />
+    <Content Include="Views\Tickets\AssignTicket.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

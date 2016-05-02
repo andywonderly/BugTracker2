@@ -20,10 +20,12 @@ namespace BugTracker2.Models
         public string TicketStatusId { get; set; }
         public string OwnerUserId { get; set; }
         public string AssignedToUserId { get; set; }
+        public string TicketAssigneeId { get; set; }
         //public virtual ICollection<ApplicationUser> Users { get; set; }
         //This was reduntant.  List of ticket users not needed.  Just use project users
         //of the project that the ticket is for.
         public virtual ApplicationUser TicketOwner { get; set; }
+        //public virtual ApplicationUser TicketAssignee { get; set; }
         public virtual Projects TicketProject { get; set; }
         public virtual ICollection<TicketAttachments> TicketAttachments { get; set; }
         public virtual ICollection<TicketComments> TicketComments { get; set; }
@@ -32,6 +34,7 @@ namespace BugTracker2.Models
         public virtual ICollection<TicketPriorities> TicketPriorities { get; set; }
         public virtual ICollection<TicketStatuses> TicketStatuses { get; set; }
         public virtual ICollection<TicketTypes> TicketTypes { get; set; }
+        public virtual ICollection<TicketAssignees> TicketAssignees { get; set; }
         public string TicketOwnerId { get; set; }
     }
 }

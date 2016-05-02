@@ -17,10 +17,24 @@ namespace BugTracker2.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string DisplayName { get; set; }
+        public string Name { get; set; }
+        public string UserProjectId3 { get; set; }
+        //[ForeignKey("ProjectUserId")]
         public virtual ICollection<Projects> Projects { get; set; }
+        //[ForeignKey("ProjectDeveloperId")]
+        //public virtual ICollection<Projects> ProjectsDeveloped { get; set; }
+        
+        //public virtual ICollection<Projects> ProjectsMemberOf { get; set; }
         public virtual ICollection<Tickets> Tickets { get; set; }
         [ForeignKey("TicketOwnerId")]
         public virtual ICollection<Tickets> TicketsOwned { get; set; }
+        [ForeignKey("TicketAssigneeId")]
+        public virtual ICollection<Tickets> TicketsAssignedTo { get; set; }
+        //[ForeignKey("ProjectDeveloperId")]
+        //public virtual ICollection<ApplicationUser> ProjectDevelopers { get; set; }
+        //public string UserProjectId { get; set; }
+        
+        
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
@@ -61,7 +75,7 @@ namespace BugTracker2.Models
 
 
         public DbSet<Projects> Projects { get; set; }
-        //public DbSet<ApplicationUser> ProjectUsers { get; set; }
+        
 
     }
 }
