@@ -29,13 +29,15 @@ namespace BugTracker2.Controllers
 
             //Create helper objects to allow access to helper functions
             UserRolesHelper userRolesHelper = new UserRolesHelper(db);
-            ProjectsHelper projectsHelper = new ProjectsHelper();
+            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
 
             //Get the list of current user roles
             var currentUserRoles = userRolesHelper.ListUserRoles(currentUser);
-            
+
             if (currentUserRoles == null)
+            {
                 return View();
+            }
 
             if (currentUserRoles != null)
                 foreach (var item in currentUserRoles)
@@ -57,11 +59,12 @@ namespace BugTracker2.Controllers
 
                     if(isPMOrDeveloper)
                     {
-                        var projectsList = projectsHelper.ListUserProjects(currentUser); //Get user project list
-                        List<Projects> projects = new List<Projects>(); //Create new list to add those projects to
+                        var userProjects = projectUsersHelper.ListUserProjects(currentUser); //Get user project list
+                        var projects = userProjects.ToList();
+                        //List<Projects> projects = new List<Projects>(); //Create new list to add those projects to
 
-                        foreach (var item2 in projects) //add them
-                            projects.Add(item2);
+                        //foreach (var item2 in projects) //add them
+                        //    projects.Add(item2);
 
                         return View(projects); //return them
                     }
@@ -266,49 +269,60 @@ namespace BugTracker2.Controllers
                 //List<string> usersToRemove = new List<string>();
                 List<ApplicationUser> usersToRemove = new List<ApplicationUser>();
 
-                //Add selected users to be added to usersToAdd list
-                foreach (var item in model.selected)
+                //Check for selected to be null
+
+                if (model.selected != null) //only addusers if selected is not null
                 {
+                    //Add selected users to be added to usersToAdd list
+                    foreach (var item in model.selected)
+                    {
 
-                    usersToAdd.Add(db.Users.First(n => n.DisplayName == item));
+                        usersToAdd.Add(db.Users.First(n => n.DisplayName == item));
 
-                }
+                    }
+                } 
+                    var project = db.Projects.Find(model.Id); //new line
 
-                var project = db.Projects.Find(model.Id); //new line
-
-                //Add all users to usersToRemove
-                // foreach (var item in project.Users)  //used to be db.Projects instead of project.Users
-                //    usersToRemove.Add(item.DisplayName);
-                usersToRemove = db.Users.ToList();
+                    //Add all users to usersToRemove
+                    // foreach (var item in project.Users)  //used to be db.Projects instead of project.Users
+                    //    usersToRemove.Add(item.DisplayName);
+                    usersToRemove = db.Users.ToList();
 
 
                 //remove users to be added from usersToRemove list
-                foreach (var item in usersToAdd)
+
+                if (usersToAdd != null)
                 {
-                    usersToRemove.Remove(db.Users.First(n => n.DisplayName == item.DisplayName));
-                    //usersToRemove.Remove(item);
+                    foreach (var item in usersToAdd)
+                    {
+                        usersToRemove.Remove(db.Users.First(n => n.DisplayName == item.DisplayName));
+                        //usersToRemove.Remove(item);
+                    }
+
+                    IEnumerable<ApplicationUser> userList = db.Users; //Create queryable list of all users
+
+                    foreach (var item in usersToAdd)
+                    {
+                        //Find the user by display name
+                        //ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
+
+
+                        if (!helper.IsUserOnProject(model.Id, item.Id)) //Check whether they're on the project
+                            helper.AddUserToProject(model.Id, item.Id); //Add them if above condition is false
+                    }
                 }
+                    //Remove user from project if the user was not selected but they are in the project
+                    foreach (var item in usersToRemove)
+                    {
+                        //Find the user by display name
+                        //ApplicationUser userToRemove = userList.FirstOrDefault(n => item == n.DisplayName);
 
-                IEnumerable<ApplicationUser> userList = db.Users; //Create queryable list of all users
-
-                foreach (var item in usersToAdd)
+                        if (helper.IsUserOnProject(model.Id, item.Id)) //Check whether they're on the project
+                            helper.RemoveUserFromProject(model.Id, item.Id); //Remove them if above is true
+                    }
+                
                 {
-                    //Find the user by display name
-                    //ApplicationUser userToAdd = userList.FirstOrDefault(n => item == n.DisplayName);
 
-                    
-                    if (!helper.IsUserOnProject(model.Id, item.Id)) //Check whether they're on the project
-                        helper.AddUserToProject(model.Id, item.Id); //Add them if above condition is false
-                }
-
-                //Remove user from project if the user was not selected but they are in the project
-                foreach (var item in usersToRemove)
-                {
-                    //Find the user by display name
-                    //ApplicationUser userToRemove = userList.FirstOrDefault(n => item == n.DisplayName);
-
-                    if (helper.IsUserOnProject(model.Id, item.Id)) //Check whether they're on the project
-                        helper.RemoveUserFromProject(model.Id, item.Id); //Remove them if above is true
                 }
                 
                 db.SaveChanges();

@@ -76,8 +76,9 @@ namespace BugTracker2.Models.Helpers
         public List<Projects> ListUserProjects(string userId)
         {
             ApplicationUser user = db.Users.Find(userId);
-            IEnumerable<Projects> projects = db.Projects.Where(x => x.ProjectUsers == user);
-            List<Projects> projectsList = projects.ToList();
+
+            //IEnumerable<Projects> projects = db.Projects.Where(x => x.ProjectUsers == user);
+            List<Projects> projectsList = user.Projects.ToList();
             return projectsList;
         }
 
