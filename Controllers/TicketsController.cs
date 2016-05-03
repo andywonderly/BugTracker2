@@ -221,9 +221,14 @@ namespace BugTracker2.Controllers
             }
 
             //The rest of the SelectLists
+            
+
             ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name");
             ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "Name");
-            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name");
+            //ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name");
+            //Status will be set to Submitted in the post action
+
+            //var tt = db.TicketTypes;
 
             return View();
         }
@@ -234,7 +239,7 @@ namespace BugTracker2.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId, TicketStatusId")] TicketsViewModel ticket)
+        public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId")] TicketsViewModel ticket)
         {
 
             //CREATE VIEW NEEDS A LIST OF PROJECTS TO SELECT FROM
@@ -242,7 +247,7 @@ namespace BugTracker2.Controllers
             {
                 var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
 
-                var ticketToAdd = new Tickets();
+                var ticketToAdd = new Tickets() { TicketStatusId = "1" };
 
                 ticketToAdd.ProjectId = ticket.ProjectId.ToString();
                 ticketToAdd.Created = DateTimeOffset.Now;
@@ -251,7 +256,6 @@ namespace BugTracker2.Controllers
                 ticketToAdd.Title = ticket.Title;
                 ticketToAdd.Description = ticket.Description;
                 ticketToAdd.TicketPriorityId = ticket.TicketPriorityId;
-                ticketToAdd.TicketStatusId = ticket.TicketStatusId;
                 ticketToAdd.TicketTypeId = ticket.TicketTypeId;
 
                 ticketToAdd.TicketOwner = db.Users.Find(currentUserId);
@@ -307,70 +311,105 @@ namespace BugTracker2.Controllers
             //ticketsViewModel.TicketStatusId = ticket.TicketStatusId;
             //ticketsViewModel.TicketTypeId = ticket.TicketTypeId;
 
-            List<SelectListItem> ticketTypeList = ticketsHelper.TicketTypesSelectList(ticket);
-            List<SelectListItem> ticketPriorityList = ticketsHelper.TicketPrioritiesSelectList(ticket);
-            List<SelectListItem> ticketStatusList = ticketsHelper.TicketStatusesSelectList(ticket);
+            //List<SelectListItem> ticketTypeList = ticketsHelper.TicketTypesSelectList(ticket);
+            //List<SelectListItem> ticketPriorityList = ticketsHelper.TicketPrioritiesSelectList(ticket);
+            //List<SelectListItem> ticketStatusList = ticketsHelper.TicketStatusesSelectList(ticket);
 
             //SelectListItem item2 = new SelectListItem(); //blank SelectListItem for use in foreach loops
 
- /*   
-  //USING HELPER FUNCTIONS INSTEAD   
-            foreach (var item in db.TicketTypes)
-            {
-                bool isSelected = false;
+            /*   
+             //USING HELPER FUNCTIONS INSTEAD   
+                       foreach (var item in db.TicketTypes)
+                       {
+                           bool isSelected = false;
 
-                if (item.Id.ToString() == ticket.TicketTypeId)
-                    isSelected = true;
+                           if (item.Id.ToString() == ticket.TicketTypeId)
+                               isSelected = true;
 
-                item2 = new SelectListItem {
-                    Selected = isSelected,
-                    Text = item.Name,
-                    Value = item.Id.ToString() };
+                           item2 = new SelectListItem {
+                               Selected = isSelected,
+                               Text = item.Name,
+                               Value = item.Id.ToString() };
 
-                ticketTypeList.Add(item2);
+                           ticketTypeList.Add(item2);
 
-            }
+                       }
 
-            foreach (var item in db.TicketPriorities)
-            {
-                bool isSelected = false;
+                       foreach (var item in db.TicketPriorities)
+                       {
+                           bool isSelected = false;
 
-                if (item.Id.ToString() == ticket.TicketPriorityId)
-                    isSelected = true;
+                           if (item.Id.ToString() == ticket.TicketPriorityId)
+                               isSelected = true;
 
-                item2 = new SelectListItem
-                {
-                    Selected = isSelected,
-                    Text = item.Name,
-                    Value = item.Id.ToString()
-                };
+                           item2 = new SelectListItem
+                           {
+                               Selected = isSelected,
+                               Text = item.Name,
+                               Value = item.Id.ToString()
+                           };
 
-                ticketPriorityList.Add(item2);
+                           ticketPriorityList.Add(item2);
 
-            }
+                       }
 
-            foreach (var item in db.TicketStatuses)
-            {
-                bool isSelected = false;
+                       foreach (var item in db.TicketStatuses)
+                       {
+                           bool isSelected = false;
 
-                if (item.Id.ToString() == ticket.TicketStatusId)
-                    isSelected = true;
+                           if (item.Id.ToString() == ticket.TicketStatusId)
+                               isSelected = true;
 
-                item2 = new SelectListItem
-                {
-                    Selected = isSelected,
-                    Text = item.Name,
-                    Value = item.Id.ToString()
-                };
+                           item2 = new SelectListItem
+                           {
+                               Selected = isSelected,
+                               Text = item.Name,
+                               Value = item.Id.ToString()
+                           };
 
-                ticketStatusList.Add(item2);
+                           ticketStatusList.Add(item2);
 
-            }
-            */
+                       }
+                       */
 
-            ViewBag.TicketTypeId = new SelectList(ticketTypeList, "Id", "Name");
-            ViewBag.TicketStatusId = new SelectList(ticketStatusList, "Id", "Name");
-            ViewBag.TicketPriorityId = new SelectList(ticketPriorityList, "Id", "Name");
+            var ticketTypeId = 0;
+            Int32.TryParse(ticket.TicketTypeId, out ticketTypeId);
+
+            var ticketTypeSelected = db.TicketTypes.Find(ticketTypeId).Name;
+            SelectList TicketTypeId = new SelectList(db.TicketTypes, "Name", "Id", ticketTypeSelected);
+            //foreach(var item in TicketTypeId)
+            //{
+            //    if (item.Value == ticket.TicketTypeId.ToString())
+            //        item.Selected = true;
+            //}
+            ViewBag.TicketTypeId = TicketTypeId;
+            var z = TicketTypeId.SelectedValue;
+
+            var ticketStatusId = 0;
+            Int32.TryParse(ticket.TicketStatusId, out ticketStatusId);
+
+            var ticketStatusSelected = db.TicketStatuses.Find(ticketStatusId).Name;
+            SelectList TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name", ticketStatusSelected);
+            //foreach (var item in TicketTypeId)
+            //{
+            //    if (item.Value == ticket.TicketStatusId.ToString())
+            //        item.Selected = true;
+            //}
+            ViewBag.TicketStatusId = TicketStatusId;
+            var y = TicketStatusId.SelectedValue;
+
+            var ticketPriorityId = 0;
+            Int32.TryParse(ticket.TicketPriorityId, out ticketPriorityId);
+
+            var ticketPrioritySelected = db.TicketPriorities.Find(ticketPriorityId).Name;
+            SelectList TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "Name", ticketPrioritySelected);
+            //foreach (var item in TicketPriorityId)
+            //{
+            //    if (item.Value == ticket.TicketPriorityId.ToString())
+            //        item.Selected = true;
+            //}
+            var x = TicketPriorityId.SelectedValue;
+            ViewBag.TicketPriorityId = TicketPriorityId;
 
             //SELECTLIST - code to where the first option is the one that is currently the selection
             //Maybe make a new list and have the first item added be the selected item
@@ -381,7 +420,7 @@ namespace BugTracker2.Controllers
             }
 
 
-            return View(ticket);
+            return View(ticketsViewModel);
         }
 
         // POST: Tickets/Edit/5
@@ -520,7 +559,9 @@ namespace BugTracker2.Controllers
 
             if (ModelState.IsValid)
             {
+                ticketToAssign.TicketStatusId = "2";
                 db.Tickets.Attach(ticketToAssign);
+                db.Entry(ticketToAssign).Property("TicketStatusId").IsModified = true;
                 db.Entry(ticketToAssign).Property("AssignedToUserId").IsModified = true;
                 db.SaveChanges();
             }

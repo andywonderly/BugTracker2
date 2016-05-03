@@ -334,6 +334,7 @@
     <Content Include="Views\Tickets\AssignTicket.cshtml" />
     <Content Include="Views\Tickets\AllTickets.cshtml" />
     <Content Include="Views\Tickets\MyProjectTickets.cshtml" />
+    <Content Include="Views\Tickets\EditTicket - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
