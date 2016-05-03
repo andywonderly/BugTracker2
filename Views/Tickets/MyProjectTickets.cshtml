@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<BugTracker2.Models.Tickets>
 
 @{
-    ViewBag.Title = "My Submitted Tickets";
+    ViewBag.Title = "My Project Tickets";
 }
 <!-- jQuery DataTables CSS -->
 <link rel="stylesheet" type="text/css"
@@ -16,10 +16,10 @@
         src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 
 <h2>@ViewBag.Title</h2>
-<div style="display: inline-block; padding-left: 3px; padding-right: 3px; background-color: lightgray;">
+<div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
     @Html.ActionLink("My Submitted Tickets", "Index")
 </div>
-<div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
+<div style="display: inline-block; padding-left: 3px; padding-right: 3px; background-color: lightgray;">
     @Html.ActionLink("My Project Tickets", "MyProjectTickets")
 </div>
 <div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
@@ -111,7 +111,7 @@
                     <br />
                     @Html.ActionLink("Delete", "DeleteTicket", new { id = item.Id })
                     <br />
-                    @Html.ActionLink("Assign", "AssignTicket", new { id = item.Id })
+                    @Html.ActionLink("Assign Ticket", "AssignTicket", new { id = item.Id })
                 </td>
             </tr>
         }

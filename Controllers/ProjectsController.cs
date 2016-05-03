@@ -25,14 +25,14 @@ namespace BugTracker2.Controllers
             //Determine current user role(s) to determine which projects they see
 
             //Get current user id
-            var currentUser = System.Web.HttpContext.Current.User.Identity.GetUserId();
-
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
             //Create helper objects to allow access to helper functions
             UserRolesHelper userRolesHelper = new UserRolesHelper(db);
             ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
 
             //Get the list of current user roles
-            var currentUserRoles = userRolesHelper.ListUserRoles(currentUser);
+            var currentUserRoles = userRolesHelper.ListUserRoles(currentUserId);
 
             if (currentUserRoles == null)
             {
@@ -59,13 +59,13 @@ namespace BugTracker2.Controllers
 
                     if(isPMOrDeveloper)
                     {
-                        var userProjects = projectUsersHelper.ListUserProjects(currentUser); //Get user project list
-                        var projects = userProjects.ToList();
-                        //List<Projects> projects = new List<Projects>(); //Create new list to add those projects to
-
+                        //var userProjects = projectUsersHelper.ListUserProjects(currentUserId); //Get user project list
+                        //var projects = userProjects.ToList();
+                    
+                    var projects = currentUser.Projects.ToList();
                         //foreach (var item2 in projects) //add them
                         //    projects.Add(item2);
-
+                        
                         return View(projects); //return them
                     }
             }

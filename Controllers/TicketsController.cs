@@ -20,60 +20,156 @@ namespace BugTracker2.Controllers
         [Authorize]
         public ActionResult Index()
         {
-            
+            //This controller action returns tickets that the current user has submitted.
+
             var userRolesHelper = new UserRolesHelper(db);
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            List<Tickets> currentUserTickets = db.Tickets.Where(n => n.TicketOwnerId == currentUserId).ToList();
+
+            //IList<string> currentUserRoles = new List<string>();
+            //currentUserRoles = userRolesHelper.ListUserRoles(currentUserId).ToList();
+
+            //Test whether the current user is a submitter and no other role.
+            //bool submitterOnly = true;
+
+            //foreach (var item in currentUserRoles)
+            //    if (item == "Admin" || item == "Project Manager" || item == "Developer")
+            //        submitterOnly = false;
+
+            //First add tickets that the current user owns.  This will always happen
+            //tickets = db.Tickets.Where(n => n.TicketOwnerId == currentUserId).ToList();
+
+            //If user has more roles, also add tickets relating to projects they're on.
+            // 1. Cycle through current user projects
+            // 2. Cycle through tickets of those projects
+            // 3. Cycle through current ticket list to check whether the ticket is already
+            //    on the list
+
+            //if (!submitterOnly) 
+
+            /*
+
+            //The following code doesn't work because in the last for loop,
+            //currentUserTickets is being modified as it is being cycled through.
+            //The tickets to add should be added to a new list, then that list added
+            //to currentUserTickets after the cascading for loops are complete.
+
+               foreach (var item in currentUser.Projects)
+                    foreach (var item2 in item.ProjectTickets)
+                        foreach (var item3 in currentUserTickets)
+                            if (item2.Id != item3.Id)
+                                currentUserTickets.Add(item2);
+
+              */  
+
+            
+          
+
             //var user = db.Users.Find(currentUserId);
-            IList<string> currentUserRoles = userRolesHelper.ListUserRoles(currentUserId);
+            
 
-            bool isAdmin = false;
-            //bool isPMorDeveloper = false;
-            //bool isSubmitter = false;
 
-            foreach(var item in currentUserRoles)
-            {
-                if (item == "Admin")
-                    isAdmin = true;
+            return View(currentUserTickets);
+            
+        }
 
-                //if (item == "Project Manager" || item == "Developer")
-                //    isPMorDeveloper = true;
-
-                //if (item == "Submitter")
-                //    isSubmitter = true;
-            }
-
+        // GET: MyProjectTickets
+        [Authorize]
+        public ActionResult MyProjectTickets()
+        {
+            var userRolesHelper = new UserRolesHelper(db);
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            var allTickets = db.Tickets.ToList();
             List<Tickets> tickets = new List<Tickets>();
-            //List<Projects> allProjects = db.Projects.ToList();
-            //List<Tickets> allTickets = db.Tickets.ToList();
 
-            var helper = new TicketUsersHelper();
-            var ticketsToAdd = new List<Tickets>();
+            //As a pre-check, check to see if the current user is assigned to any
+            //tickets as a developer.  It is possible that a user could have been assigned
+            //to a ticket, but be removed from the dev role since the assignment.
 
+            var currentUserRoles = userRolesHelper.ListUserRoles(currentUserId);
+            bool isOnlySubmitter = true;
 
-            if (isAdmin)
+            foreach (var item in currentUserRoles)
+                if (item == "Project Manager" || item == "Developer" || item == "Admin")
+                    isOnlySubmitter = false;
+
+            //If currentUser is indeed only a submitter, add owned and assigned tickets
+            //to the list and return the list.  This ends the controller action
+            if(isOnlySubmitter)
             {
-                ticketsToAdd = db.Tickets.ToList(); //If admin, list all tickets
-            }
-            else
-            {
-
-                IEnumerable<Tickets> allTickets = db.Tickets.ToList();
-
-                foreach(var item in allTickets) //If not admin, cycle through all tickets and test the
-                {                               //corresponding project's users against the current user
-                    if (item.TicketProject != null)
+                foreach(var item in allTickets)
+                {
+                    if (item.TicketOwnerId == currentUserId)
                     {
-                        foreach (var item2 in item.TicketProject.ProjectUsers)
-                            if (item2.Id == currentUserId)
-                                ticketsToAdd.Add(item);
+                        tickets.Add(item); //add ticket if currentUser is the owner
                     }
+                    else if(item.AssignedToUserId == currentUserId)
+                    {
+                        tickets.Add(item); //if not owner, add if currentUser is the assigned dev
+                    }
+                }
+
+                return View(tickets); //return tickets to view, ending the action
+            }
+
+            //If current user has roles other than submitter, the previous If block is skipped
+            //and the controller action continues
+            
+
+            //Cycle through current user projects and the tickets of those projects.
+            //Add the tickets to the tickets list
+            foreach (var item in currentUser.Projects)
+                foreach (var item2 in item.ProjectTickets)
+                    tickets.Add(item2);
+
+            //ADD CODE FOR ADDING TICKETS THAT THE CURRENT USER HAS BEEN ASSIGNED TO AS A DEVELOPER
+            //REGARDLESS OF IF THEY'RE CURRENTLY A DEVELOPER
+
+
+            //Make another ticket list to add tickets to which currentUser is assigned or has submitted
+            List<Tickets> tickets2 = new List<Tickets>();
+
+            foreach (var item in allTickets)
+            {
+                if (item.AssignedToUserId == currentUserId)
+                {
+                    tickets2.Add(item);
+                }
+                else if(item.OwnerUserId == currentUserId)
+                {
+                    tickets2.Add(item);
                 }
             }
 
+            //I KNOW THE ABOVE CODE IS A REPEAT.  IT CAN BE CONDENSED.  HOPEFULLY I WILL GET TO THAT.
 
-            return View(ticketsToAdd);
-            
+            //Now add tickets from tickets2 to tickets if the ticket is not already
+            //a part of tickets.  First make a copy of tickets to foreach through.
+            //This is because you cannot foreach through a list and modify it inside of the
+            //foreach loop.
+
+            var ticketsCopy = tickets.ToList();
+
+            foreach (var item in tickets2)
+                foreach (var item2 in ticketsCopy)
+                    if (item.Id != item2.Id)
+                        tickets.Add(item);
+
+            return View(tickets);
         }
+
+        //GET:  Tickets/AllTickets
+        [Authorize(Roles ="Admin")]
+        public ActionResult AllTickets()
+        {
+            //Admin-only:  return all tickets in the system
+            var tickets = db.Tickets.ToList();
+
+            return View(tickets);
+        }
+
 
         [Authorize]
         // GET: Tickets/Details/5
@@ -175,41 +271,126 @@ namespace BugTracker2.Controllers
         }
 
         // GET: Tickets/Edit/5
-        [Authorize(Roles ="Admin, Project Manager")]
+        [Authorize(Roles ="Admin, Project Manager, Developer")]
         public ActionResult EditTicket(int? id)
         {
+
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
+            var userRolesHelper = new UserRolesHelper(db);
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            
+
             var id2 = id.GetValueOrDefault();
 
-            var helper = new TicketUsersHelper();
-            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var ticketUsershelper = new TicketUsersHelper();
 
             //If user is a submitter
-            if (this.User.IsInRole("Submitter") && helper.IsUserOnTicket(id2, currentUserId))
+            if (this.User.IsInRole("Submitter") && ticketUsershelper.IsUserOnTicket(id2, currentUserId))
             {
                 return RedirectToAction("Index");
             }
 
             Tickets ticket = db.Tickets.Find(id);
-            
+            TicketsViewModel ticketsViewModel = new TicketsViewModel();
+            TicketsHelper ticketsHelper = new TicketsHelper();
+
+            ticketsViewModel.Description = ticket.Description;
+            ticketsViewModel.Id = ticket.Id;
+            ticketsViewModel.Title = ticket.Title;
+            //ticketsViewModel.TicketPriorityId = ticket.TicketPriorityId;
+            //ticketsViewModel.TicketStatusId = ticket.TicketStatusId;
+            //ticketsViewModel.TicketTypeId = ticket.TicketTypeId;
+
+            List<SelectListItem> ticketTypeList = ticketsHelper.TicketTypesSelectList(ticket);
+            List<SelectListItem> ticketPriorityList = ticketsHelper.TicketPrioritiesSelectList(ticket);
+            List<SelectListItem> ticketStatusList = ticketsHelper.TicketStatusesSelectList(ticket);
+
+            //SelectListItem item2 = new SelectListItem(); //blank SelectListItem for use in foreach loops
+
+ /*   
+  //USING HELPER FUNCTIONS INSTEAD   
+            foreach (var item in db.TicketTypes)
+            {
+                bool isSelected = false;
+
+                if (item.Id.ToString() == ticket.TicketTypeId)
+                    isSelected = true;
+
+                item2 = new SelectListItem {
+                    Selected = isSelected,
+                    Text = item.Name,
+                    Value = item.Id.ToString() };
+
+                ticketTypeList.Add(item2);
+
+            }
+
+            foreach (var item in db.TicketPriorities)
+            {
+                bool isSelected = false;
+
+                if (item.Id.ToString() == ticket.TicketPriorityId)
+                    isSelected = true;
+
+                item2 = new SelectListItem
+                {
+                    Selected = isSelected,
+                    Text = item.Name,
+                    Value = item.Id.ToString()
+                };
+
+                ticketPriorityList.Add(item2);
+
+            }
+
+            foreach (var item in db.TicketStatuses)
+            {
+                bool isSelected = false;
+
+                if (item.Id.ToString() == ticket.TicketStatusId)
+                    isSelected = true;
+
+                item2 = new SelectListItem
+                {
+                    Selected = isSelected,
+                    Text = item.Name,
+                    Value = item.Id.ToString()
+                };
+
+                ticketStatusList.Add(item2);
+
+            }
+            */
+
+            ViewBag.TicketTypeId = new SelectList(ticketTypeList, "Id", "Name");
+            ViewBag.TicketStatusId = new SelectList(ticketStatusList, "Id", "Name");
+            ViewBag.TicketPriorityId = new SelectList(ticketPriorityList, "Id", "Name");
+
+            //SELECTLIST - code to where the first option is the one that is currently the selection
+            //Maybe make a new list and have the first item added be the selected item
+
             if (ticket == null)
             {
                 return HttpNotFound();
             }
+
+
             return View(ticket);
         }
 
         // POST: Tickets/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles ="Admin, Project Manager")]
+        [Authorize(Roles ="Admin, Project Manager, Developer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,Created,Updated,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId,OwnerUserId,AssignedToUserId")] Tickets tickets)
+        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketsViewModel tickets)
         {
             if (ModelState.IsValid)
             {
@@ -287,8 +468,6 @@ namespace BugTracker2.Controllers
 
             if (!projectHasAtLeastOneDeveloper) //If no PMs were found, kick back to Index
                 return RedirectToAction("Index");
-                
-
 
             AssignTicketViewModel assignTicketViewModel = new AssignTicketViewModel();
             assignTicketViewModel.TicketId = id;
