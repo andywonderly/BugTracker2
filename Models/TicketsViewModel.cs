@@ -32,6 +32,10 @@ namespace BugTracker2.Models
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Updated { get; set; }
         public string DevWarning { get; set; }
+        public string ProjectManager { get; set; }
+        public bool CurrentUserIsOwner { get; set; }
+        public bool CurrentUserIsAssignedDev { get; set; }
+        public bool CurrentUserIsProjectManager { get; set; }
 
     }
 }

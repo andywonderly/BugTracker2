@@ -39,31 +39,28 @@
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                Created
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Created)
+                Updated
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Updated)
+                Project Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ProjectName)
+                Type
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TicketTypeName)
+                Priority
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TicketPriorityName)
+                Status
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TicketStatusName)
+                Submitter
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OwnerUserDisplayName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedToUserDisplayName)
+                Assigned Developer
             </th>
             <th>
                 Actions
@@ -77,9 +74,6 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Created)
@@ -100,10 +94,26 @@
                     @Html.DisplayFor(modelItem => item.TicketStatusName)
                 </td>
                 <td>
+                    @if (item.CurrentUserIsOwner)
+                    {
+                        @:<div style='padding-left: 3px; padding-right: 3px; background-color: lightgray;'>
+                    }
                     @Html.DisplayFor(modelItem => item.OwnerUserDisplayName)
+                    @if (item.CurrentUserIsOwner)
+                    {
+                        @:</div>
+                    }
                 </td>
                 <td>
+                    @if (item.CurrentUserIsAssignedDev)
+                    {
+                        @:<div style='padding-left: 3px; padding-right: 3px; background-color: lightgray;'>
+                    }
                     @Html.DisplayFor(modelItem => item.AssignedToUserDisplayName)
+                    @if (item.CurrentUserIsAssignedDev)
+                    {
+                        @:</div>
+                    }
                     <br />
                     <p style="color: red;">@Html.DisplayFor(modelItem => item.DevWarning)</p>
                 </td>

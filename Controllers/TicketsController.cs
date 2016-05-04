@@ -103,10 +103,21 @@ namespace BugTracker2.Controllers
                 temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
                 temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
                 temp.ProjectName = item.TicketProject.Name;
+                if (item.TicketProject.ProjectManagerUserId != null)
+                    temp.ProjectManager = db.Users.Find(item.TicketProject.ProjectManagerUserId).DisplayName;
                 temp.Created = item.Created;
                 temp.Updated = item.Updated;
                 //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
                 //VIEWBAG.USERWARNING MAYBE
+
+                if (currentUserId == item.OwnerUserId)
+                    temp.CurrentUserIsOwner = true;
+
+                if (currentUserId == item.AssignedToUserId)
+                    temp.CurrentUserIsAssignedDev = true;
+
+                if (currentUserId == item.TicketProject.ProjectManagerUserId)
+                    temp.CurrentUserIsProjectManager = true;
 
                 ticketsViewModel.Add(temp);
 
@@ -188,21 +199,26 @@ namespace BugTracker2.Controllers
 
             //I KNOW THE ABOVE CODE IS A REPEAT.  IT CAN BE CONDENSED.  HOPEFULLY I WILL GET TO THAT.
 
-            //Now add tickets from tickets2 to tickets if the ticket is not already
-            //a part of tickets.  First make a copy of tickets to foreach through.
-            //This is because you cannot foreach through a list and modify it inside of the
+            //Now remove any tickets from tickets2 that already exist in tickets.
+            //First make a copy of tickets2 to foreach through.  This is because 
+            //you cannot foreach through a list and modify it inside of the
             //foreach loop.
 
-            var ticketsCopy = tickets.ToList();
+            var tickets2Copy = tickets2.ToList();
 
             foreach (var item in tickets2)
-                foreach (var item2 in ticketsCopy)
+                foreach (var item2 in tickets)
                     if (item.Id != item2.Id)
-                        tickets.Add(item);
+                        tickets2Copy.Remove(item);
+
+
+            //Add any tickets that remain in tickets2 to tickets.
+            foreach (var item in tickets2Copy)
+                tickets.Add(item);
 
             List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
 
-
+            //Copy tickets properties to the view model.
             foreach (var item in tickets)
             {
                 TicketsViewModel temp = new TicketsViewModel();
@@ -233,10 +249,22 @@ namespace BugTracker2.Controllers
                 temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
                 temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
                 temp.ProjectName = item.TicketProject.Name;
+                if(item.TicketProject.ProjectManagerUserId != null)
+                    temp.ProjectManager = db.Users.Find(item.TicketProject.ProjectManagerUserId).DisplayName;
+                
                 temp.Created = item.Created;
                 temp.Updated = item.Updated;
                 //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
                 //VIEWBAG.USERWARNING MAYBE
+
+                if (currentUserId == item.OwnerUserId)
+                    temp.CurrentUserIsOwner = true;
+
+                if (currentUserId == item.AssignedToUserId)
+                    temp.CurrentUserIsAssignedDev = true;
+
+                if (currentUserId == item.TicketProject.ProjectManagerUserId)
+                    temp.CurrentUserIsProjectManager = true;
 
                 ticketsViewModel.Add(temp);
 
@@ -256,6 +284,8 @@ namespace BugTracker2.Controllers
 
             UserRolesHelper userRolesHelper = new UserRolesHelper(db);
 
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+
             foreach (var item in tickets)
             {
                 TicketsViewModel temp = new TicketsViewModel();
@@ -285,10 +315,21 @@ namespace BugTracker2.Controllers
                 temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
                 temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
                 temp.ProjectName = item.TicketProject.Name;
+                if (item.TicketProject.ProjectManagerUserId != null)
+                    temp.ProjectManager = db.Users.Find(item.TicketProject.ProjectManagerUserId).DisplayName;
                 temp.Created = item.Created;
                 temp.Updated = item.Updated;
                 //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
                 //VIEWBAG.USERWARNING MAYBE
+
+                if (currentUserId == item.OwnerUserId)
+                    temp.CurrentUserIsOwner = true;
+
+                if (currentUserId == item.AssignedToUserId)
+                    temp.CurrentUserIsAssignedDev = true;
+
+                if (currentUserId == item.TicketProject.ProjectManagerUserId)
+                    temp.CurrentUserIsProjectManager = true;
 
                 ticketsViewModel.Add(temp);
 
