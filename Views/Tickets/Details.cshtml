@@ -92,6 +92,30 @@
 
     </dl>
 </div>
+
+<h3>Comments</h3>
+@foreach(var item in Model.TicketComments)
+{
+
+    
+    @Html.Raw(item.Body);
+    
+}
+
+@using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
+{
+
+    @Html.AntiForgeryToken()
+    
+    <div class="form-group">
+        <label>Comment</label>
+        <input type="hidden" name="Tickets_Id" value="@Model.Id" />
+
+        <input type="text" name="Body" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Post comment</button>
+
+}
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")

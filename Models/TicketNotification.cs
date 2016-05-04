@@ -5,12 +5,12 @@ using System.Web;
 
 namespace BugTracker2.Models
 {
-    public class TicketComments
+    public class TicketNotification
     {
         public int Id { get; set; }
-        public string Comment { get; set; }
-        public DateTimeOffset Created { get; set; }
-        public int TicketId { get; set; }
+        public int TicketID { get; set; }
         public int UserId { get; set; }
+
+        public virtual Ticket Ticket { get; set; }
     }
 }

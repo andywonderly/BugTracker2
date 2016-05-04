@@ -25,7 +25,7 @@ namespace BugTracker2.Controllers
             var userRolesHelper = new UserRolesHelper(db);
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
             ApplicationUser currentUser = db.Users.Find(currentUserId);
-            List<Tickets> currentUserTickets = db.Tickets.Where(n => n.TicketOwnerId == currentUserId).ToList();
+            List<Ticket> currentUserTickets = db.Tickets.Where(n => n.TicketOwnerId == currentUserId).ToList();
 
             //IList<string> currentUserRoles = new List<string>();
             //currentUserRoles = userRolesHelper.ListUserRoles(currentUserId).ToList();
@@ -68,12 +68,12 @@ namespace BugTracker2.Controllers
 
             //var user = db.Users.Find(currentUserId);
 
-            List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
+            List<TicketViewModel> ticketsViewModel = new List<TicketViewModel>();
 
 
             foreach(var item in currentUserTickets)
             {
-                TicketsViewModel temp = new TicketsViewModel();
+                TicketViewModel temp = new TicketViewModel();
                 temp.Id = item.Id;
                 temp.Title = item.Title;
                 temp.Description = item.Description;
@@ -136,7 +136,7 @@ namespace BugTracker2.Controllers
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
             ApplicationUser currentUser = db.Users.Find(currentUserId);
             var allTickets = db.Tickets.ToList();
-            List<Tickets> tickets = new List<Tickets>();
+            List<Ticket> tickets = new List<Ticket>();
 
             //As a pre-check, check to see if the current user is assigned to any
             //tickets as a developer.  It is possible that a user could have been assigned
@@ -183,7 +183,7 @@ namespace BugTracker2.Controllers
 
 
             //Make another ticket list to add tickets to which currentUser is assigned or has submitted
-            List<Tickets> tickets2 = new List<Tickets>();
+            List<Ticket> tickets2 = new List<Ticket>();
 
             foreach (var item in allTickets)
             {
@@ -216,12 +216,12 @@ namespace BugTracker2.Controllers
             foreach (var item in tickets2Copy)
                 tickets.Add(item);
 
-            List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
+            List<TicketViewModel> ticketsViewModel = new List<TicketViewModel>();
 
             //Copy tickets properties to the view model.
             foreach (var item in tickets)
             {
-                TicketsViewModel temp = new TicketsViewModel();
+                TicketViewModel temp = new TicketViewModel();
                 temp.Id = item.Id;
                 temp.Title = item.Title;
                 temp.Description = item.Description;
@@ -280,7 +280,7 @@ namespace BugTracker2.Controllers
             //Admin-only:  return all tickets in the system
             var tickets = db.Tickets.ToList();
 
-            List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
+            List<TicketViewModel> ticketsViewModel = new List<TicketViewModel>();
 
             UserRolesHelper userRolesHelper = new UserRolesHelper(db);
 
@@ -288,7 +288,7 @@ namespace BugTracker2.Controllers
 
             foreach (var item in tickets)
             {
-                TicketsViewModel temp = new TicketsViewModel();
+                TicketViewModel temp = new TicketViewModel();
                 temp.Id = item.Id;
                 temp.Title = item.Title;
                 temp.Description = item.Description;
@@ -350,12 +350,14 @@ namespace BugTracker2.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tickets tickets = db.Tickets.Find(id);
-            if (tickets == null)
+            Ticket ticket = db.Tickets.Find(id);
+            if (ticket == null)
             {
                 return HttpNotFound();
             }
-            return View(tickets);
+
+            //var x = ticket.c.Count;
+            return View(ticket);
         }
 
         // GET: Tickets/Create
@@ -407,7 +409,7 @@ namespace BugTracker2.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId")] TicketsViewModel ticket)
+        public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId")] TicketViewModel ticket)
         {
 
             //CREATE VIEW NEEDS A LIST OF PROJECTS TO SELECT FROM
@@ -415,7 +417,7 @@ namespace BugTracker2.Controllers
             {
                 var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
 
-                var ticketToAdd = new Tickets() { TicketStatusId = "1" };
+                var ticketToAdd = new Ticket() { TicketStatusId = "1" };
 
                 ticketToAdd.ProjectId = ticket.ProjectId.ToString();
                 ticketToAdd.Created = DateTimeOffset.Now;
@@ -468,8 +470,8 @@ namespace BugTracker2.Controllers
                 return RedirectToAction("Index");
             }
 
-            Tickets ticket = db.Tickets.Find(id);
-            TicketsViewModel ticketsViewModel = new TicketsViewModel();
+            Ticket ticket = db.Tickets.Find(id);
+            TicketViewModel ticketsViewModel = new TicketViewModel();
             TicketsHelper ticketsHelper = new TicketsHelper();
 
             ticketsViewModel.Description = ticket.Description;
@@ -597,7 +599,7 @@ namespace BugTracker2.Controllers
         [Authorize(Roles ="Admin, Project Manager, Developer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketsViewModel tickets)
+        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketViewModel tickets)
         {
             if (ModelState.IsValid)
             {
@@ -615,7 +617,7 @@ namespace BugTracker2.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tickets tickets = db.Tickets.Find(id);
+            Ticket tickets = db.Tickets.Find(id);
             if (tickets == null)
             {
                 return HttpNotFound();
@@ -628,7 +630,7 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Tickets tickets = db.Tickets.Find(id);
+            Ticket tickets = db.Tickets.Find(id);
             db.Tickets.Remove(tickets);
             db.SaveChanges();
             return RedirectToAction("Index");
@@ -638,7 +640,7 @@ namespace BugTracker2.Controllers
         [Authorize(Roles ="Admin, Project Manager")]
         public ActionResult AssignTicket(int id)
         {
-            Tickets ticket = db.Tickets.Find(id);
+            Ticket ticket = db.Tickets.Find(id);
             var currentUser = db.Users.Find(System.Web.HttpContext.Current.User.Identity.GetUserId());
             UserRolesHelper userRolesHelper = new UserRolesHelper(db);
 
@@ -722,7 +724,7 @@ namespace BugTracker2.Controllers
         public ActionResult AssignTicket([Bind(Include = "selected,AssignedToUserId,TicketId")] AssignTicketViewModel ticket)
         {
 
-            Tickets ticketToAssign = db.Tickets.Find(ticket.TicketId);
+            Ticket ticketToAssign = db.Tickets.Find(ticket.TicketId);
             ticketToAssign.AssignedToUserId = ticket.AssignedToUserId;
 
             if (ModelState.IsValid)
@@ -734,6 +736,47 @@ namespace BugTracker2.Controllers
                 db.SaveChanges();
             }
             return RedirectToAction("Index");
+        }
+
+        //GET: CreateComment
+        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        public ActionResult TicketComment()
+        {
+            return View();
+        }
+
+        //POST:  CreateComment
+        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        [HttpPost]
+        public ActionResult TicketComment([Bind(Include = "Id,CommentId,Body,Tickets_Id")] TicketComment comment)
+        {
+            if (ModelState.IsValid)
+            {
+                var ticket = db.Tickets.Find(comment.Body);
+
+                //Make sure comment box isn't empty
+                if (string.IsNullOrWhiteSpace(comment.Body))
+                {
+                    return RedirectToAction("Details", new { id = comment.TicketId });
+                }
+
+                //Limit comment to 1000 characters
+                if(comment.Body.Length > 1000)
+                {
+                    return RedirectToAction("Details", new { id = comment.TicketId });
+                }
+
+                comment.UserId = User.Identity.GetUserId();
+                comment.UserDisplayName = db.Users.Find(comment.UserId).DisplayName;
+                comment.Created = DateTimeOffset.Now;
+                comment.TicketId = ticket.Id;
+                db.TicketComments.Add(comment);
+                db.SaveChanges();
+
+             }
+
+            var ticket2 = db.Tickets.Find(comment.TicketId);
+            return RedirectToAction("Details", new { id = comment.TicketId });
         }
 
         protected override void Dispose(bool disposing)

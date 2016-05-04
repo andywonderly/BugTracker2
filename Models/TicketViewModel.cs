@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace BugTracker2.Models
 {
-    public class TicketsViewModel
+    public class TicketViewModel
     {
 
         public int Id { get; set; }

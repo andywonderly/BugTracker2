@@ -16,7 +16,7 @@ namespace BugTracker2.Models.Helpers
         //if you are listing ticket priorities 1 through 5, and the priority of the ticket in question
         //is 2, then we want 2 to be the selected value when the list appears.
 
-        public List<SelectListItem> TicketPrioritiesSelectList(Tickets ticket)
+        public List<SelectListItem> TicketPrioritiesSelectList(Ticket ticket)
         {
             SelectListItem item2 = new SelectListItem();
             List<SelectListItem> ticketPriorityList = new List<SelectListItem>();
@@ -42,7 +42,7 @@ namespace BugTracker2.Models.Helpers
             return ticketPriorityList;
         }
 
-        public List<SelectListItem> TicketStatusesSelectList(Tickets ticket)
+        public List<SelectListItem> TicketStatusesSelectList(Ticket ticket)
         {
             SelectListItem item2 = new SelectListItem();
             List<SelectListItem> ticketStatusList = new List<SelectListItem>();
@@ -68,7 +68,7 @@ namespace BugTracker2.Models.Helpers
             return ticketStatusList;
         }
 
-        public List<SelectListItem> TicketTypesSelectList(Tickets ticket)
+        public List<SelectListItem> TicketTypesSelectList(Ticket ticket)
         {
             SelectListItem item2 = new SelectListItem();
             List<SelectListItem> ticketTypeList = new List<SelectListItem>();

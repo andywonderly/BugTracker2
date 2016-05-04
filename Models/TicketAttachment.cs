@@ -5,7 +5,7 @@ using System.Web;
 
 namespace BugTracker2.Models
 {
-    public class TicketAttachments
+    public class TicketAttachment
     {
         public int Id { get; set; }
         public int TicketId { get; set; }
@@ -14,6 +14,8 @@ namespace BugTracker2.Models
         public DateTimeOffset Created { get; set; }
         public string UserId { get; set; }
         public string FileUrl { get; set; }
+
+        public virtual Ticket Ticket { get; set; }
 
     }
 }

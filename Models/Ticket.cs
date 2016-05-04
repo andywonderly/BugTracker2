@@ -6,7 +6,7 @@ using System.Web;
 
 namespace BugTracker2.Models
 {
-    public class Tickets
+    public class Ticket
     {
         
         public int Id { get; set; }
@@ -27,14 +27,15 @@ namespace BugTracker2.Models
         public virtual ApplicationUser TicketOwner { get; set; }
         //public virtual ApplicationUser TicketAssignee { get; set; }
         public virtual Projects TicketProject { get; set; }
-        public virtual ICollection<TicketAttachments> TicketAttachments { get; set; }
-        public virtual ICollection<TicketComments> TicketComments { get; set; }
-        public virtual ICollection<TicketHistories> TicketHistories { get; set; }
-        public virtual ICollection<TicketNotifications> TicketNotifications { get; set; }
-        public virtual ICollection<TicketPriorities> TicketPriorities { get; set; }
-        public virtual ICollection<TicketStatuses> TicketStatuses { get; set; }
-        public virtual ICollection<TicketTypes> TicketTypes { get; set; }
-        public virtual ICollection<TicketAssignees> TicketAssignees { get; set; }
+        public virtual ICollection<TicketAttachment> TicketAttachments { get; set; }
+        //[ForeignKey("Tickets_Id")]
+        public virtual ICollection<TicketComment> TicketComments { get; set; }
+        public virtual ICollection<TicketHistory> TicketHistories { get; set; }
+        public virtual ICollection<TicketNotification> TicketNotifications { get; set; }
+        public virtual ICollection<TicketPriority> TicketPriorities { get; set; }
+        public virtual ICollection<TicketStatus> TicketStatuses { get; set; }
+        public virtual ICollection<TicketType> TicketTypes { get; set; }
+        public virtual ICollection<TicketAssignee> TicketAssignees { get; set; }
         public string TicketOwnerId { get; set; }
     }
 }

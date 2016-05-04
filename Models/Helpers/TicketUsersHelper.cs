@@ -17,7 +17,7 @@ namespace BugTracker2.Models.Helpers
         {
 
             ApplicationUser user = db.Users.Find(userId);
-            Tickets ticket = db.Tickets.First(p => p.Id == ticketId);
+            Ticket ticket = db.Tickets.First(p => p.Id == ticketId);
             IEnumerable<ApplicationUser> ticketUsers = ticket.TicketProject.ProjectUsers.ToList();
             bool userIsOnTicket = ticketUsers.Any(n => n.Id == user.Id);
             TicketUsersHelper ticketUsersHelper = new TicketUsersHelper();
@@ -34,7 +34,7 @@ namespace BugTracker2.Models.Helpers
         {
 
             ApplicationUser user = db.Users.Find(userId);
-            Tickets ticket = db.Tickets.First(p => p.Id == ticketId);
+            Ticket ticket = db.Tickets.First(p => p.Id == ticketId);
             IEnumerable<ApplicationUser> ticketUsers = ticket.TicketProject.ProjectUsers.ToList();
             bool userIsOnTicket = ticketUsers.Any(n => n.Id == user.Id);
             TicketUsersHelper ticketUsersHelper = new TicketUsersHelper();
@@ -49,7 +49,7 @@ namespace BugTracker2.Models.Helpers
 
         public IList<string> ListTicketUsers(int ticketId)
         {
-            Tickets ticket = db.Tickets.First(p => p.Id == ticketId);
+            Ticket ticket = db.Tickets.First(p => p.Id == ticketId);
             IList<string> ticketUserList = new List<string>();
 
             //ticketUserList = ticket.Users.Where(x => x.Id == )
@@ -62,7 +62,7 @@ namespace BugTracker2.Models.Helpers
 
         public IList<string> ListNonTicketUsers(int ticketId)
         {
-            Tickets ticket = db.Tickets.FirstOrDefault(p => p.Id == ticketId);
+            Ticket ticket = db.Tickets.FirstOrDefault(p => p.Id == ticketId);
             List<ApplicationUser> userList = db.Users.ToList(); //list of all users
             IList<string> nonUserDisplayNames = new List<string>();
 
@@ -75,11 +75,11 @@ namespace BugTracker2.Models.Helpers
             return nonUserDisplayNames;
         }
 
-        public List<Tickets> ListUserTickets(string userId)
+        public List<Ticket> ListUserTickets(string userId)
         {
             ApplicationUser user = db.Users.Find(userId);
-            IEnumerable<Tickets> tickets = db.Tickets.Where(x => x.TicketProject.ProjectUsers == user);
-            List<Tickets> ticketsList = new List<Tickets>();
+            IEnumerable<Ticket> tickets = db.Tickets.Where(x => x.TicketProject.ProjectUsers == user);
+            List<Ticket> ticketsList = new List<Ticket>();
 
             if (tickets != null)
                 ticketsList = tickets.ToList();

@@ -25,11 +25,11 @@ namespace BugTracker2.Models
         //public virtual ICollection<Projects> ProjectsDeveloped { get; set; }
         
         //public virtual ICollection<Projects> ProjectsMemberOf { get; set; }
-        public virtual ICollection<Tickets> Tickets { get; set; }
+        public virtual ICollection<Ticket> Tickets { get; set; }
         [ForeignKey("TicketOwnerId")]
-        public virtual ICollection<Tickets> TicketsOwned { get; set; }
+        public virtual ICollection<Ticket> TicketsOwned { get; set; }
         [ForeignKey("TicketAssigneeId")]
-        public virtual ICollection<Tickets> TicketsAssignedTo { get; set; }
+        public virtual ICollection<Ticket> TicketsAssignedTo { get; set; }
         //[ForeignKey("ProjectDeveloperId")]
         //public virtual ICollection<ApplicationUser> ProjectDevelopers { get; set; }
         //public string UserProjectId { get; set; }
@@ -64,14 +64,14 @@ namespace BugTracker2.Models
             return new ApplicationDbContext();
         }
 
-        public DbSet<TicketAttachments> TicketAttachments { get; set; }
-        public DbSet<TicketComments> TicketComments { get; set; }
-        public DbSet<TicketHistories> TicketHistories { get; set; }
-        public DbSet<TicketNotifications> TicketNotifications { get; set; }
-        public DbSet<Tickets> Tickets { get; set; }
-        public DbSet<TicketStatuses> TicketStatuses { get; set; }
-        public DbSet<TicketPriorities> TicketPriorities { get; set; }
-        public DbSet<TicketTypes> TicketTypes { get; set; }
+        public DbSet<TicketAttachment> TicketAttachments { get; set; }
+        public DbSet<TicketComment> TicketComments { get; set; }
+        public DbSet<TicketHistory> TicketHistories { get; set; }
+        public DbSet<TicketNotification> TicketNotifications { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<TicketStatus> TicketStatuses { get; set; }
+        public DbSet<TicketPriority> TicketPriorities { get; set; }
+        public DbSet<TicketType> TicketTypes { get; set; }
 
 
         public DbSet<Projects> Projects { get; set; }

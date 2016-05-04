@@ -89,7 +89,7 @@ namespace BugTracker2.Controllers
         public ActionResult CreateProject()
         {
             ProjectUsersHelper helper = new ProjectUsersHelper();
-            var model = new ProjectsViewModel();
+            var model = new ProjectViewModel();
 
             List<ApplicationUser> allUsers = db.Users.ToList();
 
@@ -109,7 +109,7 @@ namespace BugTracker2.Controllers
         //POST: Projects/CreateProject
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public ActionResult CreateProject([Bind(Include = "Id, Name, selected")] ProjectsViewModel project)
+        public ActionResult CreateProject([Bind(Include = "Id, Name, selected")] ProjectViewModel project)
         {
             if (String.IsNullOrWhiteSpace(project.Name))
             {
@@ -238,7 +238,7 @@ namespace BugTracker2.Controllers
             }
 
             var helper = new ProjectUsersHelper();
-            var model = new ProjectUsersViewModel();
+            var model = new ProjectUserViewModel();
 
             //model.ProjectId = project.Id.ToString();
             model.selected = helper.ListProjectUsers(id).ToArray();
@@ -250,7 +250,7 @@ namespace BugTracker2.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProjectUsers([Bind(Include = "selected, Id, Name, roles")] ProjectUsersViewModel model)
+        public ActionResult EditProjectUsers([Bind(Include = "selected, Id, Name, roles")] ProjectUserViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -331,6 +331,8 @@ namespace BugTracker2.Controllers
             //return RedirectToAction("EditProjectUsers", new { model.Id });
             return RedirectToAction("Index");
         }
+
+
 
     }
 
