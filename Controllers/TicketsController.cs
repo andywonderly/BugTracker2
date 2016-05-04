@@ -61,16 +61,59 @@ namespace BugTracker2.Controllers
                             if (item2.Id != item3.Id)
                                 currentUserTickets.Add(item2);
 
-              */  
+              */
 
-            
-          
+
+
 
             //var user = db.Users.Find(currentUserId);
-            
+
+            List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
 
 
-            return View(currentUserTickets);
+            foreach(var item in currentUserTickets)
+            {
+                TicketsViewModel temp = new TicketsViewModel();
+                temp.Id = item.Id;
+                temp.Title = item.Title;
+                temp.Description = item.Description;
+                temp.OwnerUserDisplayName = db.Users.Find(item.OwnerUserId).DisplayName;
+
+
+
+                try
+                {
+                    temp.AssignedToUserDisplayName = db.Users.Find(item.AssignedToUserId).DisplayName;
+                }
+                catch
+                {
+                    temp.AssignedToUserDisplayName = "***";
+                }
+
+                if (item.AssignedToUserId != null)
+                {
+                    if (!userRolesHelper.IsUserInRole(item.AssignedToUserId, "Developer"))
+                    {
+                        temp.DevWarning = "Assigned user is no longer a developer.";
+                    }
+                }
+                
+
+                temp.TicketStatusName = db.TicketStatuses.FirstOrDefault(n => n.Id.ToString() == item.TicketStatusId).Name;
+                temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
+                temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
+                temp.ProjectName = item.TicketProject.Name;
+                temp.Created = item.Created;
+                temp.Updated = item.Updated;
+                //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
+                //VIEWBAG.USERWARNING MAYBE
+
+                ticketsViewModel.Add(temp);
+
+            }
+
+            //waspViewBag.Message = "Hi";
+            return View(ticketsViewModel);
             
         }
 
@@ -157,7 +200,49 @@ namespace BugTracker2.Controllers
                     if (item.Id != item2.Id)
                         tickets.Add(item);
 
-            return View(tickets);
+            List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
+
+
+            foreach (var item in tickets)
+            {
+                TicketsViewModel temp = new TicketsViewModel();
+                temp.Id = item.Id;
+                temp.Title = item.Title;
+                temp.Description = item.Description;
+                temp.OwnerUserDisplayName = db.Users.Find(item.OwnerUserId).DisplayName;
+
+                try
+                {
+                    temp.AssignedToUserDisplayName = db.Users.Find(item.AssignedToUserId).DisplayName;
+                }
+                catch
+                {
+                    temp.AssignedToUserDisplayName = "***";
+                }
+
+                if (item.AssignedToUserId != null)
+                {
+                    if (!userRolesHelper.IsUserInRole(item.AssignedToUserId, "Developer"))
+                    {
+                        temp.DevWarning = "Assigned user is no longer a developer.";
+                    }
+                }
+
+
+                temp.TicketStatusName = db.TicketStatuses.FirstOrDefault(n => n.Id.ToString() == item.TicketStatusId).Name;
+                temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
+                temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
+                temp.ProjectName = item.TicketProject.Name;
+                temp.Created = item.Created;
+                temp.Updated = item.Updated;
+                //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
+                //VIEWBAG.USERWARNING MAYBE
+
+                ticketsViewModel.Add(temp);
+
+            }
+
+            return View(ticketsViewModel);
         }
 
         //GET:  Tickets/AllTickets
@@ -167,7 +252,49 @@ namespace BugTracker2.Controllers
             //Admin-only:  return all tickets in the system
             var tickets = db.Tickets.ToList();
 
-            return View(tickets);
+            List<TicketsViewModel> ticketsViewModel = new List<TicketsViewModel>();
+
+            UserRolesHelper userRolesHelper = new UserRolesHelper(db);
+
+            foreach (var item in tickets)
+            {
+                TicketsViewModel temp = new TicketsViewModel();
+                temp.Id = item.Id;
+                temp.Title = item.Title;
+                temp.Description = item.Description;
+                temp.OwnerUserDisplayName = db.Users.Find(item.OwnerUserId).DisplayName;
+
+                try
+                {
+                    temp.AssignedToUserDisplayName = db.Users.Find(item.AssignedToUserId).DisplayName;
+                }
+                catch
+                {
+                    temp.AssignedToUserDisplayName = "***";
+                }
+
+                if (item.AssignedToUserId != null)
+                {
+                    if (!userRolesHelper.IsUserInRole(item.AssignedToUserId, "Developer"))
+                    {
+                        temp.DevWarning = "Assigned user is no longer a developer.";
+                    }
+                }
+
+                temp.TicketStatusName = db.TicketStatuses.FirstOrDefault(n => n.Id.ToString() == item.TicketStatusId).Name;
+                temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
+                temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
+                temp.ProjectName = item.TicketProject.Name;
+                temp.Created = item.Created;
+                temp.Updated = item.Updated;
+                //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
+                //VIEWBAG.USERWARNING MAYBE
+
+                ticketsViewModel.Add(temp);
+
+            }
+
+            return View(ticketsViewModel);
         }
 
 

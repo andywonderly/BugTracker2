@@ -24,6 +24,14 @@ namespace BugTracker2.Models
         public string OwnerUserId { get; set; }
         public string AssignedToUserId { get; set; }
         public string ProjectName { get; set; }
+        public string OwnerUserDisplayName { get; set; }
+        public string AssignedToUserDisplayName { get; set; }
+        public string TicketStatusName { get; set; }
+        public string TicketPriorityName { get; set; }
+        public string TicketTypeName { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset Updated { get; set; }
+        public string DevWarning { get; set; }
 
     }
 }
