@@ -20,7 +20,7 @@ namespace BugTracker2.Models
         public string Name { get; set; }
         public string UserProjectId3 { get; set; }
         //[ForeignKey("ProjectUserId")]
-        public virtual ICollection<Projects> Projects { get; set; }
+        public virtual ICollection<Project> Projects { get; set; }
         //[ForeignKey("ProjectDeveloperId")]
         //public virtual ICollection<Projects> ProjectsDeveloped { get; set; }
         
@@ -74,7 +74,7 @@ namespace BugTracker2.Models
         public DbSet<TicketType> TicketTypes { get; set; }
 
 
-        public DbSet<Projects> Projects { get; set; }
+        public DbSet<Project> Projects { get; set; }
         
 
     }

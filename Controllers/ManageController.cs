@@ -83,8 +83,9 @@ namespace BugTracker2.Controllers
         [Authorize]
         public ActionResult ChangeDisplayName()
         {
-
-            return View();
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+            return View(currentUser);
 
         }
 

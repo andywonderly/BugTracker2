@@ -17,13 +17,16 @@ namespace BugTracker2.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Tickets
-        [Authorize]
+        [Authorize(Roles ="Admin, Project Manager, Developer, Submitter")]
         public ActionResult Index()
         {
+            
+                       
             //This controller action returns tickets that the current user has submitted.
 
             var userRolesHelper = new UserRolesHelper(db);
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+
             ApplicationUser currentUser = db.Users.Find(currentUserId);
             List<Ticket> currentUserTickets = db.Tickets.Where(n => n.TicketOwnerId == currentUserId).ToList();
 
@@ -102,6 +105,9 @@ namespace BugTracker2.Controllers
                 temp.TicketStatusName = db.TicketStatuses.FirstOrDefault(n => n.Id.ToString() == item.TicketStatusId).Name;
                 temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
                 temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
+                //var ticketTypeInt = 0;
+                //Int32.TryParse(item.TicketTypeId, out ticketTypeInt);
+                //temp.TicketTypeName = db.TicketTypes.Find(ticketTypeInt).Name;
                 temp.ProjectName = item.TicketProject.Name;
                 if (item.TicketProject.ProjectManagerUserId != null)
                     temp.ProjectManager = db.Users.Find(item.TicketProject.ProjectManagerUserId).DisplayName;
@@ -129,7 +135,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: MyProjectTickets
-        [Authorize]
+        [Authorize(Roles ="Admin, Project Manager, Developer")]
         public ActionResult MyProjectTickets()
         {
             var userRolesHelper = new UserRolesHelper(db);
@@ -151,8 +157,16 @@ namespace BugTracker2.Controllers
 
             //If currentUser is indeed only a submitter, add owned and assigned tickets
             //to the list and return the list.  This ends the controller action
+
+            //UPDATE:  This code should never be reached.  Users who are only in the submitter
+            //role will not be able to access this controller action.  Furthermore, if this code
+            //actually runs, it will return a runtime error because this code block returns a list
+            //of class Ticket, and the view takes in a list of class TicketViewModel.
             if(isOnlySubmitter)
             {
+
+                
+
                 foreach(var item in allTickets)
                 {
                     if (item.TicketOwnerId == currentUserId)
@@ -165,6 +179,7 @@ namespace BugTracker2.Controllers
                     }
                 }
 
+                
                 return View(tickets); //return tickets to view, ending the action
             }
 
@@ -216,7 +231,7 @@ namespace BugTracker2.Controllers
             foreach (var item in tickets2Copy)
                 tickets.Add(item);
 
-            List<TicketViewModel> ticketsViewModel = new List<TicketViewModel>();
+            List<TicketViewModel> ticketViewModel = new List<TicketViewModel>();
 
             //Copy tickets properties to the view model.
             foreach (var item in tickets)
@@ -266,11 +281,13 @@ namespace BugTracker2.Controllers
                 if (currentUserId == item.TicketProject.ProjectManagerUserId)
                     temp.CurrentUserIsProjectManager = true;
 
-                ticketsViewModel.Add(temp);
+                ticketViewModel.Add(temp);
 
             }
 
-            return View(ticketsViewModel);
+            IEnumerable<TicketViewModel> enumTicketViewModel = ticketViewModel.ToList();
+
+            return View(enumTicketViewModel);
         }
 
         //GET:  Tickets/AllTickets
@@ -339,7 +356,7 @@ namespace BugTracker2.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
         // GET: Tickets/Details/5
         public ActionResult Details(int? id)
         {
@@ -361,7 +378,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: Tickets/Create
-        [Authorize]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
         public ActionResult CreateTicket()
         {
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
@@ -376,8 +393,8 @@ namespace BugTracker2.Controllers
                 ViewBag.ProjectId = new SelectList(db.Projects, "Id", "Name");
             } else
             {
-                ICollection<Projects> userProjects = new List<Projects>();
-                List<Projects> allProjects = db.Projects.ToList();
+                ICollection<Project> userProjects = new List<Project>();
+                List<Project> allProjects = db.Projects.ToList();
 
 
                 foreach(var item in allProjects)
@@ -406,7 +423,7 @@ namespace BugTracker2.Controllers
         // POST: Tickets/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId")] TicketViewModel ticket)
@@ -546,7 +563,7 @@ namespace BugTracker2.Controllers
             Int32.TryParse(ticket.TicketTypeId, out ticketTypeId);
 
             var ticketTypeSelected = db.TicketTypes.Find(ticketTypeId).Name;
-            SelectList TicketTypeId = new SelectList(db.TicketTypes, "Name", "Id", ticketTypeSelected);
+            SelectList TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name", ticketTypeSelected);
             //foreach(var item in TicketTypeId)
             //{
             //    if (item.Value == ticket.TicketTypeId.ToString())
@@ -599,18 +616,28 @@ namespace BugTracker2.Controllers
         [Authorize(Roles ="Admin, Project Manager, Developer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketViewModel tickets)
+        public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketViewModel ticketViewModel)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(tickets).State = EntityState.Modified;
+                Ticket ticket = db.Tickets.Find(ticketViewModel.Id);
+                ticket.Title = ticketViewModel.Title;
+                ticket.Description = ticketViewModel.Description;
+                ticket.TicketTypeId = ticketViewModel.TicketTypeId;
+                ticket.TicketPriorityId = ticketViewModel.TicketPriorityId;
+                ticket.TicketStatusId = ticketViewModel.TicketStatusId;
+                ticket.Updated = DateTimeOffset.Now;
+
+                db.Entry(ticket).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                //return RedirectToAction("Index");
             }
-            return View(tickets);
+
+            return RedirectToAction("Index");
         }
 
         // GET: Tickets/Delete/5
+        [Authorize(Roles = "Admin, Project Manager, Developer")]
         public ActionResult DeleteTicket(int? id)
         {
             if (id == null)
@@ -626,6 +653,7 @@ namespace BugTracker2.Controllers
         }
 
         // POST: Tickets/Delete/5
+        [Authorize(Roles = "Admin, Project Manager, Developer")]
         [HttpPost, ActionName("DeleteTicket")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
@@ -739,20 +767,49 @@ namespace BugTracker2.Controllers
         }
 
         //GET: CreateComment
-        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
         public ActionResult TicketComment()
         {
             return View();
         }
 
         //POST:  CreateComment
-        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
         [HttpPost]
-        public ActionResult TicketComment([Bind(Include = "Id,CommentId,Body,Tickets_Id")] TicketComment comment)
+        public ActionResult TicketComment([Bind(Include = "Id,CommentId,Body,TicketId")] TicketComment comment)
         {
+            var userRolesHelper = new UserRolesHelper(db);
+            var projectUsersHelper = new ProjectUsersHelper();
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            var ticketOwnerId = db.Tickets.Find(comment.TicketId).OwnerUserId;
+            var ticketAssigneeId = db.Tickets.Find(comment.TicketId).TicketAssigneeId;
+            //Ticket comment permission checks:
+
+            //If the user is a submitter only, and their Id doesn't match the ticket owner Id, kick back.
+            if ((userRolesHelper.IsUserInRole(currentUserId, "Submitter"))
+                && (!userRolesHelper.IsUserInRole(currentUserId, "Developer")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Admin")))
+                    if (ticketOwnerId.ToString() != currentUserId)
+                        return RedirectToAction("Details", new { id = comment.TicketId });
+
+            //If user is a PM and not an admin, and they are not on the project, kick back.
+            if (userRolesHelper.IsUserInRole(currentUserId, "Project Manager") && !userRolesHelper.IsUserInRole(currentUserId, "Admin"))
+                if (!projectUsersHelper.IsUserOnProject(comment.Ticket.TicketProject.Id, currentUserId))
+                    return RedirectToAction("Details", new { id = comment.TicketId });
+
+            //If user is a developer and not an admin or PM, and their Id doesn't match the ticket assigned id,
+            //kick back.
+            if (userRolesHelper.IsUserInRole(currentUserId, "Developer")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Admin")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager"))
+                    if (ticketAssigneeId != currentUserId)
+                        return RedirectToAction("Details", new { id = comment.TicketId });
+
             if (ModelState.IsValid)
             {
-                var ticket = db.Tickets.Find(comment.Body);
+                var ticket = db.Tickets.Find(comment.TicketId);
 
                 //Make sure comment box isn't empty
                 if (string.IsNullOrWhiteSpace(comment.Body))

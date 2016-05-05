@@ -17,11 +17,11 @@ namespace BugTracker2.Models.Helpers
             return (flag);
         }
 
-        public ICollection<Projects> ListUserProjects(string userId)
+        public ICollection<Project> ListUserProjects(string userId)
         {
             //ApplicationUser user = db.Users.Find(userId);
-            IEnumerable<Projects> project = new List<Projects>().Where(n => n.Id.ToString() == userId);
-            ICollection<Projects> projects = project.ToList();
+            IEnumerable<Project> project = new List<Project>().Where(n => n.Id.ToString() == userId);
+            ICollection<Project> projects = project.ToList();
             projects = project.ToList();
             return (projects);
         }

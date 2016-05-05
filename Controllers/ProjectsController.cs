@@ -122,7 +122,7 @@ namespace BugTracker2.Controllers
                 //ApplicationUser projectManager = db.Users.FirstOrDefault(n => n.DisplayName == project.selected);
                 //project.ProjectManagerUserId = projectManager.Id;
 
-                var projectToAdd = new Projects();
+                var projectToAdd = new Project();
 
                 projectToAdd.Id = project.ProjectId;
                 projectToAdd.Name = project.Name;
@@ -144,7 +144,7 @@ namespace BugTracker2.Controllers
         public ActionResult DeleteProject(int id)
         {
 
-            Projects project = db.Projects.FirstOrDefault(p => p.Id == id);
+            Project project = db.Projects.FirstOrDefault(p => p.Id == id);
 
 
 
@@ -162,7 +162,7 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Projects project = db.Projects.FirstOrDefault(p => p.Id == id);
+            Project project = db.Projects.FirstOrDefault(p => p.Id == id);
             db.Projects.Remove(project);
             db.SaveChanges();
             return RedirectToAction("Index");
@@ -173,7 +173,7 @@ namespace BugTracker2.Controllers
         public ActionResult EditProject(int id)
         {
 
-            Projects project = db.Projects.FirstOrDefault(p => p.Id == id);
+            Project project = db.Projects.FirstOrDefault(p => p.Id == id);
 
             if (project == null)
             {
@@ -190,7 +190,7 @@ namespace BugTracker2.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProject([Bind(Include = "Id,Name")] Projects project)
+        public ActionResult EditProject([Bind(Include = "Id,Name")] Project project)
         {
            
 
@@ -230,7 +230,7 @@ namespace BugTracker2.Controllers
             //    return RedirectToAction("Index");
             //}
 
-            Projects project = db.Projects.FirstOrDefault(p => p.Id == id);
+            Project project = db.Projects.FirstOrDefault(p => p.Id == id);
 
             if ( project == null)
             {

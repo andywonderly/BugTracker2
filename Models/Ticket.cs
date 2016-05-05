@@ -26,7 +26,7 @@ namespace BugTracker2.Models
         //of the project that the ticket is for.
         public virtual ApplicationUser TicketOwner { get; set; }
         //public virtual ApplicationUser TicketAssignee { get; set; }
-        public virtual Projects TicketProject { get; set; }
+        public virtual Project TicketProject { get; set; }
         public virtual ICollection<TicketAttachment> TicketAttachments { get; set; }
         //[ForeignKey("Tickets_Id")]
         public virtual ICollection<TicketComment> TicketComments { get; set; }

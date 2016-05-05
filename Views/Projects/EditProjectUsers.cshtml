@@ -1,4 +1,4 @@
-﻿@model BugTracker2.Models.ProjectUsersViewModel
+﻿@model BugTracker2.Models.ProjectUserViewModel
 
 @{
     ViewBag.Title = "Edit Project Users";
@@ -15,7 +15,7 @@
     @Html.AntiForgeryToken()
 
     <div>
-        @Html.ListBoxFor(x => x.selected, Model.users)
+        @Html.ListBoxFor(x => x.selected, Model.users, new { size = 10 })
         @Html.HiddenFor(model => model.Id)
         @Html.HiddenFor(model => Model.Name)
 

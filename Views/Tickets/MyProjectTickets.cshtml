@@ -1,7 +1,7 @@
-﻿@model IEnumerable<BugTracker2.Models.TicketsViewModel>
+﻿@model IEnumerable<BugTracker2.Models.TicketViewModel>
 
 @{
-    ViewBag.Title = "My Project Tickets";
+    ViewBag.Title = "Tickets";
 }
 <!-- jQuery DataTables CSS -->
 <link rel="stylesheet" type="text/css"
@@ -47,9 +47,6 @@
                 Project Name
             </th>
             <th>
-                Project Manager
-            </th>
-            <th>
                 Type
             </th>
             <th>
@@ -78,16 +75,13 @@
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Created)
+                    @Html.DisplayFor(modelItem => item.Created.LocalDateTime)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Updated)
+                    @Html.DisplayFor(modelItem => item.Updated.LocalDateTime)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ProjectName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProjectManager)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TicketTypeName)
