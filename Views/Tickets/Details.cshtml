@@ -93,7 +93,50 @@
     </dl>
 </div>
 
+<h3>Attach a file</h3>
+
+@using (Html.BeginForm("TicketAttachment", "Tickets", FormMethod.Post,
+                    new { enctype = "Multipart/form-data" }))
+{
+    <div class="form-group">
+        <input type="hidden" name="TicketId" value="@Model.Id" />
+        Attachment description:
+        <input type="text" name="Description" class="form-control">
+        <input name="file" type="file" class="form-control" id="fileUpload" />
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Upload</button>
+}
+
+<br />
+@using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
+{
+
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label>Add a comment</label>
+        <input type="hidden" name="TicketId" value="@Model.Id" />
+
+        <input type="text" name="Body" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Post comment</button>
+
+}
+
+<br />
 <h3>Comments</h3>
+
+@foreach (var item in Model.TicketAttachments)
+{    
+    <div>
+        Filename: @Html.Raw(item.FileName)
+        <br />
+        <a href="@Url.Content(item.FileUrl)">
+            Download
+        </a>
+    </div>
+}
+
 @foreach (var item in Model.TicketComments)
 {
 
@@ -107,20 +150,7 @@
 
 }
 
-@using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
-{
 
-    @Html.AntiForgeryToken()
-    
-    <div class="form-group">
-        <label>Comment</label>
-        <input type="hidden" name="TicketId" value="@Model.Id" />
-
-        <input type="text" name="Body" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Post comment</button>
-
-}
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Web;
 
@@ -37,5 +39,63 @@ namespace BugTracker2.Models
         public virtual ICollection<TicketType> TicketTypes { get; set; }
         public virtual ICollection<TicketAssignee> TicketAssignees { get; set; }
         public string TicketOwnerId { get; set; }
+
+        public class UploadValidator
+        {
+            public static bool ValidateUpload(HttpPostedFileBase file)
+            {
+                if (file == null)
+                    return false;
+
+                //if (file.ContentLength > 2 * 1024 * 1024 || file.ContentLength < 1024)
+                if (file.ContentLength > 4 * 1024 * 1024 || file.ContentLength < 1024)
+                    return false;
+
+                var Extension = file.FileName.Substring(file.FileName.LastIndexOf('.') + 1).ToLower();
+
+                switch(Extension)
+                {
+                    case "txt":
+                    case "rtf":
+                    case "pdf":
+                    case "zip":
+                    case "rar":
+                    case "doc":
+                    case "docx":
+                    case "xls":
+                    case "xlsx":
+                    case "ppt":
+                    case "pptx":
+                    case "jpg":
+                    case "jpeg":
+                    case "png":
+                    case "gif":
+                    case "tif":
+                    case "tiff":
+                        return true;
+                        break;
+                    default:
+                        return false;
+                        break;
+                }
+
+                /*
+                
+                try
+                {
+                    using (var img = Image.FromStream(file.InputStream))
+                    {
+                        return ImageFormat.Jpeg.Equals(img.RawFormat) ||
+                               ImageFormat.Png.Equals(img.RawFormat) ||
+                               ImageFormat.Gif.Equals(img.RawFormat);
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+                */
+            }
+        }
     }
 }

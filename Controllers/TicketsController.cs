@@ -9,6 +9,8 @@ using System.Web.Mvc;
 using BugTracker2.Models;
 using Microsoft.AspNet.Identity;
 using BugTracker2.Models.Helpers;
+using System.IO;
+using static BugTracker2.Models.Ticket;
 
 namespace BugTracker2.Controllers
 {
@@ -835,6 +837,75 @@ namespace BugTracker2.Controllers
             var ticket2 = db.Tickets.Find(comment.TicketId);
             return RedirectToAction("Details", new { id = comment.TicketId });
         }
+
+        //GET: TicketAttachment
+        [Authorize(Roles ="Admin, Project Manager, Developer, Submitter")]
+        public ActionResult TicketAttachment()
+        {
+
+
+            return View();
+        }
+
+        //POST:  TicketAttachment
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [HttpPost]
+        public ActionResult TicketAttachment([Bind(Include = "Id,TicketId,FilePath,Description")] TicketAttachment attachment, HttpPostedFileBase file)
+        {
+            //Permissions code copied from ticket comments
+
+            var userRolesHelper = new UserRolesHelper(db);
+            var projectUsersHelper = new ProjectUsersHelper();
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            var ticketOwnerId = db.Tickets.Find(attachment.TicketId).OwnerUserId;
+            var ticketAssigneeId = db.Tickets.Find(attachment.TicketId).TicketAssigneeId;
+            //Ticket comment permission checks:
+
+            //If the user is a submitter only, and their Id doesn't match the ticket owner Id, kick back.
+            if ((userRolesHelper.IsUserInRole(currentUserId, "Submitter"))
+                && (!userRolesHelper.IsUserInRole(currentUserId, "Developer")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Admin")))
+                if (ticketOwnerId.ToString() != currentUserId)
+                    return RedirectToAction("Details", new { id = attachment.TicketId });
+
+            //If user is a PM and not an admin, and they are not on the project, kick back.
+            if (userRolesHelper.IsUserInRole(currentUserId, "Project Manager") && !userRolesHelper.IsUserInRole(currentUserId, "Admin"))
+                if (!projectUsersHelper.IsUserOnProject(attachment.Ticket.TicketProject.Id, currentUserId))
+                    return RedirectToAction("Details", new { id = attachment.TicketId });
+
+            //If user is a developer and not an admin or PM, and their Id doesn't match the ticket assigned id,
+            //kick back.
+            if (userRolesHelper.IsUserInRole(currentUserId, "Developer")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Admin")
+                && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager"))
+                if (ticketAssigneeId != currentUserId)
+                    return RedirectToAction("Details", new { id = attachment.TicketId });
+
+            
+
+            if(ModelState.IsValid)
+            {
+                if (UploadValidator.ValidateUpload(file))
+                {
+                    
+                    var fileName = Path.GetFileName(file.FileName);
+                    file.SaveAs(Path.Combine(Server.MapPath("~/Uploads"), fileName));
+                    attachment.FileUrl = "~/Uploads/" + fileName;
+
+                    attachment.FileName = fileName;
+                    attachment.Created = DateTimeOffset.Now;
+                    attachment.UserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                    //The attachment's TicketId should be passed through the view
+                    db.TicketAttachments.Add(attachment);
+                    db.SaveChanges();
+                }
+            }
+
+            return RedirectToAction("Details", new { id = attachment.TicketId });
+        }
+
 
         protected override void Dispose(bool disposing)
         {
