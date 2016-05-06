@@ -581,7 +581,7 @@ namespace BugTracker2.Controllers
             var ticketTypeId = 0;
             Int32.TryParse(ticket.TicketTypeId, out ticketTypeId);
 
-            var ticketTypeSelected = db.TicketTypes.Find(ticketTypeId).Name;
+            var ticketTypeSelected = db.TicketTypes.Find(ticketTypeId).Id;
             SelectList TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name", ticketTypeSelected);
             //foreach(var item in TicketTypeId)
             //{
@@ -595,7 +595,7 @@ namespace BugTracker2.Controllers
             var ticketStatusId = 0;
             Int32.TryParse(ticket.TicketStatusId, out ticketStatusId);
 
-            var ticketStatusSelected = db.TicketStatuses.Find(ticketStatusId).Name;
+            var ticketStatusSelected = db.TicketStatuses.Find(ticketStatusId).Id;
             SelectList TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name", ticketStatusSelected);
             //foreach (var item in TicketTypeId)
             //{
@@ -608,7 +608,7 @@ namespace BugTracker2.Controllers
             var ticketPriorityId = 0;
             Int32.TryParse(ticket.TicketPriorityId, out ticketPriorityId);
 
-            var ticketPrioritySelected = db.TicketPriorities.Find(ticketPriorityId).Name;
+            var ticketPrioritySelected = db.TicketPriorities.Find(ticketPriorityId).Id;
             SelectList TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "Name", ticketPrioritySelected);
             //foreach (var item in TicketPriorityId)
             //{
