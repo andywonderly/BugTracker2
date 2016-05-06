@@ -457,6 +457,20 @@ namespace BugTracker2.Controllers
 
                 db.Tickets.Add(ticketToAdd);
                 db.SaveChanges();
+
+                TicketHistoryUpdater.Update(db, ticketToAdd, currentUserId, "Ticket created");
+
+                //TicketHistory ticketHistory = new TicketHistory();
+                //ticketHistory.TicketId = ticket.Id;
+                //ticketHistory.DateTime = DateTimeOffset.Now;
+                //ticketHistory.OldValue = "N/A";
+                //ticketHistory.Property = "Created";
+
+                //ticketHistory.UserId = currentUserId;
+
+                //db.TicketHistories.Attach(ticketHistory);
+                //db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -467,6 +481,7 @@ namespace BugTracker2.Controllers
         [Authorize(Roles ="Admin, Project Manager, Developer")]
         public ActionResult EditTicket(int? id)
         {
+
 
 
             if (id == null)
@@ -492,6 +507,8 @@ namespace BugTracker2.Controllers
             Ticket ticket = db.Tickets.Find(id);
             TicketViewModel ticketsViewModel = new TicketViewModel();
             TicketsHelper ticketsHelper = new TicketsHelper();
+
+
 
             ticketsViewModel.Description = ticket.Description;
             ticketsViewModel.Id = ticket.Id;
@@ -571,6 +588,7 @@ namespace BugTracker2.Controllers
             //    if (item.Value == ticket.TicketTypeId.ToString())
             //        item.Selected = true;
             //}
+
             ViewBag.TicketTypeId = TicketTypeId;
             var z = TicketTypeId.SelectedValue;
 
@@ -623,6 +641,25 @@ namespace BugTracker2.Controllers
             if (ModelState.IsValid)
             {
                 Ticket ticket = db.Tickets.Find(ticketViewModel.Id);
+                var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                //List<string[]> updatedFields = new List<string[]>();
+                //string[] propertyUpdate = new string[3];
+
+                if (ticketViewModel.Title != ticket.Title)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Title");
+
+                if (ticketViewModel.Description != ticket.Description)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Description");
+
+                if (ticketViewModel.TicketTypeId != ticket.TicketTypeId)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketTypeId");
+
+                if (ticketViewModel.TicketStatusId != ticket.TicketStatusId)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketStatusId");
+
+                if (ticketViewModel.TicketPriorityId != ticket.TicketPriorityId)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketPriorityId");
+
                 ticket.Title = ticketViewModel.Title;
                 ticket.Description = ticketViewModel.Description;
                 ticket.TicketTypeId = ticketViewModel.TicketTypeId;
@@ -632,6 +669,22 @@ namespace BugTracker2.Controllers
 
                 db.Entry(ticket).State = EntityState.Modified;
                 db.SaveChanges();
+
+                if (ticketViewModel.Description != ticket.Description)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Description");
+
+                if (ticketViewModel.Title != ticket.Title)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Title");
+
+                if (ticketViewModel.TicketTypeId != ticket.TicketTypeId)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketTypeId");
+
+                if (ticketViewModel.TicketStatusId != ticket.TicketStatusId)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketStatusId");
+
+                if (ticketViewModel.TicketPriorityId != ticket.TicketPriorityId)
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketPriorityId");
+
                 //return RedirectToAction("Index");
             }
 
@@ -737,10 +790,14 @@ namespace BugTracker2.Controllers
                 assignTicketViewModel.selected = db.Users.Find(ticket.AssignedToUserId).DisplayName;
 
             //foreach(var item in ticket.TicketProject.Users) //If the current user is a project user, return
-                                                            //the view model
+            //the view model
             //{
-                //if (item.Id == currentUser.Id)
-                    return View(assignTicketViewModel);
+            //if (item.Id == currentUser.Id)
+
+            assignTicketViewModel.TicketStatusId = ticket.TicketStatusId;
+            
+                    
+            return View(assignTicketViewModel);
             //}
 
             //ViewBag.ProjectManagers = new SelectList(ticket.TicketProject.Users.Where(r => r.Roles), "Id", "Name");
@@ -751,19 +808,32 @@ namespace BugTracker2.Controllers
         [Authorize(Roles = "Admin, Project Manager")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AssignTicket([Bind(Include = "selected,AssignedToUserId,TicketId")] AssignTicketViewModel ticket)
+        public ActionResult AssignTicket([Bind(Include = "selected,AssignedToUserId,TicketStatusId,TicketId")] AssignTicketViewModel ticket)
         {
-
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
             Ticket ticketToAssign = db.Tickets.Find(ticket.TicketId);
+
+            //If the incoming AssignedToUserId is different, update the history
+            if (ticketToAssign.AssignedToUserId != ticket.AssignedToUserId)
+                TicketHistoryUpdater.Update(db, ticketToAssign, currentUserId, "AssignedToUserId",
+                                            ticketToAssign.AssignedToUserId, ticket.AssignedToUserId);
+
+            //Update the ticket itself
             ticketToAssign.AssignedToUserId = ticket.AssignedToUserId;
 
             if (ModelState.IsValid)
             {
+                //Update the history before we change the ticket status
+                if (ticketToAssign.TicketStatusId != "2")
+                    TicketHistoryUpdater.Update(db, ticketToAssign, currentUserId, "TicketStatusId",
+                                                ticketToAssign.TicketStatusId, "2");
+
                 ticketToAssign.TicketStatusId = "2";
                 db.Tickets.Attach(ticketToAssign);
                 db.Entry(ticketToAssign).Property("TicketStatusId").IsModified = true;
                 db.Entry(ticketToAssign).Property("AssignedToUserId").IsModified = true;
                 db.SaveChanges();
+
             }
             return RedirectToAction("Index");
         }
@@ -785,7 +855,8 @@ namespace BugTracker2.Controllers
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
             ApplicationUser currentUser = db.Users.Find(currentUserId);
             var ticketOwnerId = db.Tickets.Find(comment.TicketId).OwnerUserId;
-            var ticketAssigneeId = db.Tickets.Find(comment.TicketId).TicketAssigneeId;
+            var assignedToUserId = db.Tickets.Find(comment.TicketId).AssignedToUserId;
+            var ticket = db.Tickets.Find(comment.TicketId);
             //Ticket comment permission checks:
 
             //If the user is a submitter only, and their Id doesn't match the ticket owner Id, kick back.
@@ -798,20 +869,25 @@ namespace BugTracker2.Controllers
 
             //If user is a PM and not an admin, and they are not on the project, kick back.
             if (userRolesHelper.IsUserInRole(currentUserId, "Project Manager") && !userRolesHelper.IsUserInRole(currentUserId, "Admin"))
-                if (!projectUsersHelper.IsUserOnProject(comment.Ticket.TicketProject.Id, currentUserId))
+            {
+                var projectIdInt = 0;
+                Int32.TryParse(ticket.ProjectId, out projectIdInt);
+
+                if (!projectUsersHelper.IsUserOnProject(projectIdInt, currentUserId))
                     return RedirectToAction("Details", new { id = comment.TicketId });
+            }
 
             //If user is a developer and not an admin or PM, and their Id doesn't match the ticket assigned id,
             //kick back.
             if (userRolesHelper.IsUserInRole(currentUserId, "Developer")
                 && !userRolesHelper.IsUserInRole(currentUserId, "Admin")
                 && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager"))
-                    if (ticketAssigneeId != currentUserId)
+                    if (assignedToUserId != currentUserId)
                         return RedirectToAction("Details", new { id = comment.TicketId });
 
             if (ModelState.IsValid)
             {
-                var ticket = db.Tickets.Find(comment.TicketId);
+                //var ticket = db.Tickets.Find(comment.TicketId);
 
                 //Make sure comment box isn't empty
                 if (string.IsNullOrWhiteSpace(comment.Body))
@@ -832,6 +908,7 @@ namespace BugTracker2.Controllers
                 db.TicketComments.Add(comment);
                 db.SaveChanges();
 
+                TicketHistoryUpdater.Update(db, comment.Ticket, currentUserId, "New comment");
              }
 
             var ticket2 = db.Tickets.Find(comment.TicketId);
@@ -859,7 +936,8 @@ namespace BugTracker2.Controllers
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
             ApplicationUser currentUser = db.Users.Find(currentUserId);
             var ticketOwnerId = db.Tickets.Find(attachment.TicketId).OwnerUserId;
-            var ticketAssigneeId = db.Tickets.Find(attachment.TicketId).TicketAssigneeId;
+            var assignedToUserId = db.Tickets.Find(attachment.TicketId).AssignedToUserId;
+            var ticket = db.Tickets.Find(attachment.TicketId);
             //Ticket comment permission checks:
 
             //If the user is a submitter only, and their Id doesn't match the ticket owner Id, kick back.
@@ -872,15 +950,19 @@ namespace BugTracker2.Controllers
 
             //If user is a PM and not an admin, and they are not on the project, kick back.
             if (userRolesHelper.IsUserInRole(currentUserId, "Project Manager") && !userRolesHelper.IsUserInRole(currentUserId, "Admin"))
-                if (!projectUsersHelper.IsUserOnProject(attachment.Ticket.TicketProject.Id, currentUserId))
+            {
+                var projectIdInt = 0;
+                Int32.TryParse(ticket.ProjectId, out projectIdInt);
+                if (!projectUsersHelper.IsUserOnProject(projectIdInt, currentUserId))
                     return RedirectToAction("Details", new { id = attachment.TicketId });
+            }
 
             //If user is a developer and not an admin or PM, and their Id doesn't match the ticket assigned id,
             //kick back.
             if (userRolesHelper.IsUserInRole(currentUserId, "Developer")
                 && !userRolesHelper.IsUserInRole(currentUserId, "Admin")
                 && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager"))
-                if (ticketAssigneeId != currentUserId)
+                if (assignedToUserId != currentUserId)
                     return RedirectToAction("Details", new { id = attachment.TicketId });
 
             
@@ -897,12 +979,25 @@ namespace BugTracker2.Controllers
                     attachment.FileName = fileName;
                     attachment.Created = DateTimeOffset.Now;
                     attachment.UserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                    attachment.UploaderDisplayName = db.Users.Find(attachment.UserId).DisplayName;
                     //The attachment's TicketId should be passed through the view
                     db.TicketAttachments.Add(attachment);
                     db.SaveChanges();
+
+                    TicketHistoryUpdater.Update(db, attachment.Ticket, currentUserId, "New attachment");
+                }
+                else
+                {
+                    ViewBag.SystemMessage = "Upload invalid.";
+                    //Ticket ticket = db.Tickets.Find(attachment.TicketId);
+                    
+                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Invalid upload attempt");
+                    return View(ticket);
                 }
             }
 
+
+            
             return RedirectToAction("Details", new { id = attachment.TicketId });
         }
 

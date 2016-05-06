@@ -16,6 +16,7 @@
         <h4>Tickets</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <input type="hidden" name="TicketStatusId" value="@Model.TicketStatusId" />
         
         Choose a developer for this ticket:
         <div class="form-group">

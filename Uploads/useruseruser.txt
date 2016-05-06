@@ -1,0 +1,2 @@
+Project project = db.Projects.Find(id)l
+project.users.Add(user)

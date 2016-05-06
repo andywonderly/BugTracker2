@@ -13,6 +13,7 @@ namespace BugTracker2.Models
         public string selected { get; set; }
         public virtual ICollection<ApplicationUser> ProjectDevelopers { get; set; }
         public string Name { get; set; }
+        public string TicketStatusId { get; set; }
 
     }
 }

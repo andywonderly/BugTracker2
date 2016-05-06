@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Details";
 }
-
+<h3>@ViewBag.SystemMessage</h3>
 <h2>Details</h2>
 
 <div>
@@ -35,11 +35,11 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Updated)
+            @Html.DisplayNameFor(model => model.Updated.LocalDateTime)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.Updated)
+            @Html.DisplayFor(model => model.Updated.LocalDateTime)
         </dd>
 
         <dt>
@@ -128,12 +128,16 @@
 
 @foreach (var item in Model.TicketAttachments)
 {    
-    <div>
+    <div style="padding-top: 5px; padding-bottom: 5px;">
         Filename: @Html.Raw(item.FileName)
         <br />
-        <a href="@Url.Content(item.FileUrl)">
-            Download
-        </a>
+        Description: @Html.Raw(item.Description)
+        <br />
+        Uploader: @Html.Raw(item.UploaderDisplayName)
+        <br />
+        When: @Html.Raw(item.Created.LocalDateTime)
+        <br />
+        <a href="@Url.Content(item.FileUrl)">Download File</a>
     </div>
 }
 
@@ -148,6 +152,34 @@
         
     </div>
 
+}
+
+<h3>Ticket History</h3>
+
+@foreach(var item in Model.TicketHistories)
+{
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        Action: @Html.Raw(item.Property) 
+        @if (item.OldValue != null || item.NewValue != null)
+        {
+            @Html.Raw(" changed")
+        }
+        <br />
+        User: @Html.Raw(item.UserDisplayName)
+        <br />
+        When: @Html.Raw(item.DateTime.LocalDateTime)
+        @if (item.NewValue != null)
+        {
+            <br />
+            @Html.Raw("New value: " + item.NewValue);
+        }
+
+        @if (item.OldValue != null)
+        {
+            <br />
+             @Html.Raw("Previous value: " + item.OldValue);
+        }
+    </div>
 }
 
 

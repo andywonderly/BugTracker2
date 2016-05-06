@@ -15,6 +15,7 @@ namespace BugTracker2.Models
         public string UserId { get; set; }
         public string FileUrl { get; set; }
         public string FileName { get; set; }
+        public string UploaderDisplayName { get; set; }
 
         public virtual Ticket Ticket { get; set; }
 

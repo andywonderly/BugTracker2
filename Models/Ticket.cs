@@ -10,7 +10,7 @@ namespace BugTracker2.Models
 {
     public class Ticket
     {
-        
+
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -39,6 +39,50 @@ namespace BugTracker2.Models
         public virtual ICollection<TicketType> TicketTypes { get; set; }
         public virtual ICollection<TicketAssignee> TicketAssignees { get; set; }
         public string TicketOwnerId { get; set; }
+       
+
+        public class TicketHistoryUpdater
+        {
+
+            public static bool Update(ApplicationDbContext db, Ticket ticket, string currentUserId, 
+                                                   string property, string oldValue, string newValue)
+            {
+                TicketHistory ticketHistory = new TicketHistory();
+                ticketHistory.TicketId = ticket.Id;
+                ticketHistory.DateTime = DateTimeOffset.Now;
+                ticketHistory.NewValue = newValue;
+                ticketHistory.OldValue = oldValue;
+                ticketHistory.Property = property;
+                ticketHistory.UserId = currentUserId;
+                ticketHistory.UserDisplayName = db.Users.Find(currentUserId).DisplayName;
+
+                db.TicketHistories.Add(ticketHistory);
+                db.SaveChanges();
+
+                return true;
+            }
+
+            public static bool Update( ApplicationDbContext db, Ticket ticket, string currentUserId,
+                                                    string property)
+            {
+                TicketHistory ticketHistory = new TicketHistory();
+                ticketHistory.TicketId = ticket.Id;
+                ticketHistory.DateTime = DateTimeOffset.Now;
+                ticketHistory.Property = property;
+                ticketHistory.UserId = currentUserId;
+                ticketHistory.UserDisplayName = db.Users.Find(currentUserId).DisplayName;
+
+                db.TicketHistories.Add(ticketHistory);
+                db.SaveChanges();
+
+                return true;
+            }
+
+                
+
+        }
+
+
 
         public class UploadValidator
         {
@@ -48,7 +92,7 @@ namespace BugTracker2.Models
                     return false;
 
                 //if (file.ContentLength > 2 * 1024 * 1024 || file.ContentLength < 1024)
-                if (file.ContentLength > 4 * 1024 * 1024 || file.ContentLength < 1024)
+                if (file.ContentLength > 4 * 1024 * 1024 || file.ContentLength < 4)
                     return false;
 
                 var Extension = file.FileName.Substring(file.FileName.LastIndexOf('.') + 1).ToLower();
