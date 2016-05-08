@@ -61,6 +61,15 @@ namespace BugTracker2.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
+            //Delete the ticketNav cookie if it is there
+
+            if (Request.Cookies["TicketNav"] != null)
+            {
+                HttpCookie TicketNav = new HttpCookie("TicketNav");
+                TicketNav.Expires = DateTime.Now.AddDays(-1d);
+                Response.Cookies.Add(TicketNav);
+            }
+
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -284,6 +293,15 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
+            //Delete the ticketNav cookie if it is there
+
+            if (Request.Cookies["TicketNav"] != null)
+            {
+                HttpCookie TicketNav = new HttpCookie("TicketNav");
+                TicketNav.Expires = DateTime.Now.AddDays(-1d);
+                Response.Cookies.Add(TicketNav);
+            }
+
             // Request a redirect to the external login provider
             return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
         }
@@ -397,6 +415,16 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+
+            //Delete the ticketNav cookie if it is there
+
+            if (Request.Cookies["TicketNav"] != null)
+            {
+                HttpCookie TicketNav = new HttpCookie("TicketNav");
+                TicketNav.Expires = DateTime.Now.AddDays(-1d);
+                Response.Cookies.Add(TicketNav);
+            }
+
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "Home");
         }

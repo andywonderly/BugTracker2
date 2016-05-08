@@ -218,8 +218,8 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ProjectsController.cs" />
-    <Compile Include="Controllers\TicketsController - Copy.cs" />
     <Compile Include="Controllers\TicketsController.cs" />
+    <Compile Include="Controllers\TicketsController - Copy.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -336,6 +336,7 @@
     <Content Include="Views\Tickets\MyProjectTickets.cshtml" />
     <Content Include="Views\Tickets\EditTicket - Copy.cshtml" />
     <Content Include="Views\Tickets\TicketAttachment.cshtml" />
+    <Content Include="Views\Tickets\MySubmittedTickets.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

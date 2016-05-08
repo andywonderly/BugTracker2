@@ -16,16 +16,49 @@ namespace BugTracker2.Controllers
 {
     public class TicketsController : Controller
     {
+
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Tickets
-        [Authorize(Roles ="Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
         public ActionResult Index()
-        {
-            
+        { 
+            //This Index action is a navigation-only action based around a cookie.
+            //It navigates the user to whichever Tickets tab they were previously on.
+
+            HttpCookie TicketNav = Request.Cookies["TicketNav"];
+
+            if(TicketNav != null)
+            {
+                string ticketNav = TicketNav.Values["TicketNav"].ToString();
+
+                switch(ticketNav)
+                {
+                    case "MySubmittedTickets":
+                        return RedirectToAction("MySubmittedTickets");
+                        break;
+                    case "AllTickets":
+                        return RedirectToAction("AllTickets");
+                        break;
+                    case "MyProjectTickets":
+                        return RedirectToAction("MyProjectTickets");
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return RedirectToAction("MySubmittedTickets");
+        }
+
+            // GET: Tickets
+            [Authorize(Roles ="Admin, Project Manager, Developer, Submitter")]
+            public ActionResult MySubmittedTickets()
+            {
                        
             //This controller action returns tickets that the current user has submitted.
 
+            //private ApplicationDbContext db = new ApplicationDbContext();
             var userRolesHelper = new UserRolesHelper(db);
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
 
@@ -140,6 +173,15 @@ namespace BugTracker2.Controllers
         [Authorize(Roles ="Admin, Project Manager, Developer")]
         public ActionResult MyProjectTickets()
         {
+            //HttpContext.Current.Response.Cookies.Remove("TicketNav");
+
+            //Will the cookie Values.Add command overwrite the old cookie value
+            //or add a new one?
+
+            HttpCookie TicketNav = new HttpCookie("TicketNav");
+            TicketNav["TicketNav"] = "MyProjectTickets";
+            Response.Cookies.Add(TicketNav);
+
             var userRolesHelper = new UserRolesHelper(db);
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
             ApplicationUser currentUser = db.Users.Find(currentUserId);
@@ -296,6 +338,13 @@ namespace BugTracker2.Controllers
         [Authorize(Roles ="Admin")]
         public ActionResult AllTickets()
         {
+            HttpCookie TicketNav = new HttpCookie("TicketNav");
+            TicketNav["TicketNav"] = "AllTickets";
+            Response.Cookies.Add(TicketNav);
+
+            //var x = TicketNav;
+            
+            
             //Admin-only:  return all tickets in the system
             var tickets = db.Tickets.ToList();
 
