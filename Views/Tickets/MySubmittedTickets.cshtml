@@ -18,7 +18,7 @@
 <h2>@ViewBag.Title</h2>
 
 <div style="display: inline-block; padding-left: 3px; padding-right: 3px; background-color: lightgray;">
-    @Html.ActionLink("My Submitted Tickets", "Index")
+    @Html.ActionLink("My Submitted Tickets", "MySubmittedTickets")
 </div>
 @if (ViewContext.HttpContext.User.IsInRole("Admin") || ViewContext.HttpContext.User.IsInRole("Developer")
         || ViewContext.HttpContext.User.IsInRole("Project Manager"))

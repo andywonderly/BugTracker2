@@ -124,11 +124,11 @@
 }
 
 <br />
-<h3>Comments</h3>
 
+<h3>Attachments</h3>
 @foreach (var item in Model.TicketAttachments)
 {    
-    <div style="max-width: 512px; background-color: cadetblue; padding: 5px; margin-bottom: 5px;
+    <div style="max-width: 512px; background-color: cyan; padding: 5px; margin-bottom: 5px;
                 border-radius: 5px; border: 2px solid #484848">
         Filename: @Html.Raw(item.FileName)
         <br />
@@ -142,6 +142,7 @@
     </div>
 }
 
+<h3>Comments</h3>
 @foreach (var item in Model.TicketComments)
 {
 

@@ -553,11 +553,17 @@ namespace BugTracker2.Controllers
                 return RedirectToAction("Index");
             }
 
+            
+
             Ticket ticket = db.Tickets.Find(id);
             TicketViewModel ticketsViewModel = new TicketViewModel();
             TicketsHelper ticketsHelper = new TicketsHelper();
 
-
+            if (this.User.IsInRole("Developer") && !this.User.IsInRole("Admin") && !this.User.IsInRole("Project Manager"))
+            {
+                if(currentUser.Id != ticket.AssignedToUserId)
+                    return RedirectToAction("Index");
+            }
 
             ticketsViewModel.Description = ticket.Description;
             ticketsViewModel.Id = ticket.Id;
@@ -1049,6 +1055,8 @@ namespace BugTracker2.Controllers
             
             return RedirectToAction("Details", new { id = attachment.TicketId });
         }
+
+
 
 
         protected override void Dispose(bool disposing)
