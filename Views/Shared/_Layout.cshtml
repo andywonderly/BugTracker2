@@ -13,9 +13,21 @@
         }({
             instrumentationKey:"9a7b8343-28f5-4820-8740-2239e92de944"
         });
-        
+
         window.appInsights=appInsights;
         appInsights.trackPageView();
+
+        openTab("Details")
+        function openTab(cityName) {
+            var i;
+            var x = document.getElementsByClassName("tabName");
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+            }
+            document.getElementById(cityName).style.display = "block";
+        }
+
+    
     </script>
 </head>
 <body>

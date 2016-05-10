@@ -44,6 +44,10 @@ namespace BugTracker2.Models
         public class TicketHistoryUpdater
         {
 
+            //The "Update" function is no longer used in my code.  I have kept the code so I can 
+            //refer to it in the future.  The "New" function is used instead so that I can call it
+            //to create new ticket histories and do a single db.SaveChanges() inside the controller.
+
             public static bool Update(ApplicationDbContext db, Ticket ticket, string currentUserId, 
                                                    string property, string oldValue, string newValue)
             {
@@ -78,7 +82,36 @@ namespace BugTracker2.Models
                 return true;
             }
 
-                
+            public static TicketHistory New(ApplicationDbContext db, Ticket ticket, string currentUserId,
+                                                string property, string oldValue, string newValue)
+            {
+                TicketHistory ticketHistory = new TicketHistory();
+                ticketHistory.TicketId = ticket.Id;
+                ticketHistory.DateTime = DateTimeOffset.Now;
+                ticketHistory.NewValue = newValue;
+                ticketHistory.OldValue = oldValue;
+                ticketHistory.Property = property;
+                ticketHistory.UserId = currentUserId;
+                ticketHistory.UserDisplayName = db.Users.Find(currentUserId).DisplayName;
+
+                return ticketHistory;
+            }
+
+            public static TicketHistory New(ApplicationDbContext db, Ticket ticket, string currentUserId,
+                                                string property)
+            {
+                TicketHistory ticketHistory = new TicketHistory();
+                ticketHistory.TicketId = ticket.Id;
+                ticketHistory.DateTime = DateTimeOffset.Now;
+                ticketHistory.Property = property;
+                ticketHistory.UserId = currentUserId;
+                ticketHistory.UserDisplayName = db.Users.Find(currentUserId).DisplayName;
+
+                return ticketHistory;
+            }
+
+
+
 
         }
 

@@ -1,12 +1,19 @@
-﻿@model BugTracker2.Models.Ticket
+﻿@model BugTracker2.Models.TicketViewModel
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Ticket Detail View";
 }
-<h3>@ViewBag.SystemMessage</h3>
-<h2>Details</h2>
 
-<div>
+<h3>@ViewBag.SystemMessage</h3>
+
+<ul class="navbar">
+    <li><a href="#" onclick="openTab('Details')">Details</a></li>
+    <li><a href="#" onclick="openTab('History')">History</a></li>
+
+</ul>
+
+<div id="Details" class="tabName">
+    <div>
     <h4>Tickets</h4>
     <hr />
     <dl class="dl-horizontal">
@@ -27,15 +34,15 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Created)
+            Created date-time
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.Created)
+            @Html.DisplayFor(model => model.Created.LocalDateTime)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Updated.LocalDateTime)
+            Updated date-time
         </dt>
 
         <dd>
@@ -43,75 +50,83 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.ProjectId)
+            Project name
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.ProjectId)
+            @Html.DisplayFor(model => model.ProjectName)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.TicketTypeId)
+            Ticket type
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TicketTypeId)
+            @Html.DisplayFor(model => model.TicketTypeName)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.TicketPriorityId)
+            Ticket priority
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TicketPriorityId)
+            @Html.DisplayFor(model => model.TicketPriorityName)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.TicketStatusId)
+           Ticket status
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TicketStatusId)
+            @Html.DisplayFor(model => model.TicketStatusName)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.OwnerUserId)
+            Ticket submitter
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.OwnerUserId)
+            @Html.DisplayFor(model => model.OwnerUserDisplayName)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.AssignedToUserId)
+            Assigned developer
         </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.AssignedToUserId)
+        <dd>        
+            @Html.DisplayFor(model => model.AssignedToUserDisplayName)
         </dd>
 
     </dl>
 </div>
 
-<h3>Attach a file</h3>
 
-@using (Html.BeginForm("TicketAttachment", "Tickets", FormMethod.Post,
-                    new { enctype = "Multipart/form-data" }))
+@if (ViewBag.ShowForms != false)
 {
-    <div class="form-group">
-        <input type="hidden" name="TicketId" value="@Model.Id" />
-        Attachment description:
-        <input type="text" name="Description" class="form-control">
-        <input name="file" type="file" class="form-control" id="fileUpload" />
-    </div>
-    <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Upload</button>
+
+        using (Html.BeginForm("TicketAttachment", "Tickets", FormMethod.Post, new { enctype = "Multipart/form-data" }))
+        {
+            <div class="form-group">
+                <input type="hidden" name="TicketId" value="@Model.Id" />
+                Attachment description:
+                <input type="text" name="Description" class="form-control">
+                <input name="file" type="file" class="form-control" id="fileUpload" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Upload</button>
+
+        }    
 }
 
 <br />
-@using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
+@if(ViewBag.ShowForms != false)
 {
 
-    @Html.AntiForgeryToken()
+    <h3>Add a comment</h3>
+
+    using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
+            {
+
+                @Html.AntiForgeryToken()
 
     <div class="form-group">
         <label>Add a comment</label>
@@ -122,6 +137,7 @@
     <button type="submit" class="btn btn-primary btn-lg" id="submit-button">Post comment</button>
 
 }
+}
 
 <br />
 
@@ -130,15 +146,23 @@
 {    
     <div style="max-width: 512px; background-color: cyan; padding: 5px; margin-bottom: 5px;
                 border-radius: 5px; border: 2px solid #484848">
-        Filename: @Html.Raw(item.FileName)
+        
+        Filename: @*There is a space after "Filename:"....just to be clear*@
+        <b>
+            <a href="@Url.Content(item.FileUrl)">
+                @Html.Raw(item.FileName)
+            </a>
+        </b>
         <br />
-        Description: @Html.Raw(item.Description)
+        Description: <b>@Html.Raw(item.Description)</b>
         <br />
-        Uploader: @Html.Raw(item.UploaderDisplayName)
+        Uploader: <b>@Html.Raw(item.UploaderDisplayName)</b>
         <br />
         When: @Html.Raw(item.Created.LocalDateTime)
         <br />
-        <a href="@Url.Content(item.FileUrl)">Download File</a>
+        <b>
+            <a href="@Url.Content(item.FileUrl)">Download File</a>
+        </b>
     </div>
 }
 
@@ -155,38 +179,50 @@
     </div>
 
 }
-
-<h3>Ticket History</h3>
-
-@foreach(var item in Model.TicketHistories)
-{
-    <div style="max-width: 512px; background-color: lightgreen; padding: 5px; margin-bottom: 5px;
-                border-radius: 5px; border: 2px solid #484848">
-        Action: @Html.Raw(item.Property) 
-        @if (item.OldValue != null || item.NewValue != null)
-        {
-            @Html.Raw(" changed")
-        }
-        <br />
-        User: @Html.Raw(item.UserDisplayName)
-        <br />
-        When: @Html.Raw(item.DateTime.LocalDateTime)
-        @if (item.NewValue != null)
-        {
-            <br />
-            @Html.Raw("New value: " + item.NewValue);
-        }
-
-        @if (item.OldValue != null)
-        {
-            <br />
-             @Html.Raw("Previous value: " + item.OldValue);
-        }
     </div>
-}
+
+<div id="History" class="tabName">
+    <h3>Ticket History</h3>
+
+    @foreach (var item in Model.TicketHistories)
+    {
+        <div style="max-width: 512px; background-color: lightgreen; padding: 5px; margin-bottom: 5px;
+                border-radius: 5px; border: 2px solid #484848">
+            Action:
+            <b>
+                @Html.Raw(item.Property)
+                @if (item.OldValue != null || item.NewValue != null)
+                {
+                    @Html.Raw(" changed")
+                }
+            </b>
+            <br />
+            User: <b>@Html.Raw(item.UserDisplayName)</b>
+            <br />
+            When: @Html.Raw(item.DateTime.LocalDateTime)
+            @if (item.NewValue != null)
+            {
+                <br />
+                @Html.Raw("New value: ");
+                <b>
+                    @Html.Raw(item.NewValue);
+                </b>
+            }
+
+            @if (item.OldValue != null)
+            {
+                <br />
+                @Html.Raw("Previous value: ");
+
+                @Html.Raw(item.OldValue);
+                @*These are on different lines so you can style OldValue if you please*@
+            }
+        </div>
+    }
 
 
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+</div>  

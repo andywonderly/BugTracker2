@@ -11,6 +11,9 @@ using Microsoft.AspNet.Identity;
 using BugTracker2.Models.Helpers;
 using System.IO;
 using static BugTracker2.Models.Ticket;
+using SendGrid;
+using System.Net.Mail;
+using System.Configuration;
 
 namespace BugTracker2.Controllers
 {
@@ -424,8 +427,69 @@ namespace BugTracker2.Controllers
                 return HttpNotFound();
             }
 
+
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+
+
+            //Check whether the user is a developer only, and if so, check if they're assigned to
+            //the ticket.  If not, set ShowForms to false so that the comment and attachment forms will
+            //be hidden on the details page.  This is for the user's own benefit of letting
+            // them know they can't send comments or attachments -- it is not a security
+            //measure.  If they somehow send form data anyway, the post action will recognize that they
+            //are not the assigned dev and will not process whatever they sent.
+
+            //I use viewbag here as a shortcut...the more robust solution would be to use a view model.
+
+            TicketViewModel ticketViewModel = new TicketViewModel();
+
+            if (this.User.IsInRole("Developer") && !this.User.IsInRole("Admin") && !this.User.IsInRole("Project Manager"))
+            {
+                if (currentUser.Id != ticket.AssignedToUserId)
+                {
+                    ViewBag.ShowForms = false;
+                    //CurrentUserIsAssignedDev is currently not used for anything.  I am using
+                    //the viewbag.ShowForms property instead
+                    ticketViewModel.CurrentUserIsAssignedDev = true;
+                }  
+            }
+
+            //Convert the status, priority, and type Ids to ints
+
+            var type = 0;
+            var status = 0;
+            var priority = 0;
+
+            Int32.TryParse(ticket.TicketTypeId, out type);
+            Int32.TryParse(ticket.TicketStatusId, out status);
+            Int32.TryParse(ticket.TicketPriorityId, out priority);
+
+            ticketViewModel.Title = ticket.Title;
+            ticketViewModel.Description = ticket.Description;
+            ticketViewModel.TicketTypeName = db.TicketTypes.Find(type).Name;
+            ticketViewModel.TicketStatusName = db.TicketStatuses.Find(status).Name;
+            ticketViewModel.TicketPriorityName = db.TicketPriorities.Find(priority).Name;
+            ticketViewModel.ProjectName = db.Projects.Find(ticket.TicketProject.Id).Name;
+            ticketViewModel.OwnerUserDisplayName = db.Users.Find(ticket.OwnerUserId).DisplayName;
+            ticketViewModel.Created = ticket.Created;
+            ticketViewModel.Updated = ticket.Updated;
+
+            ticketViewModel.TicketHistories = ticket.TicketHistories.ToList();
+            ticketViewModel.TicketAttachments = ticket.TicketAttachments.ToList();
+            ticketViewModel.TicketComments = ticket.TicketComments.ToList();
+
+
+            if (ticket.AssignedToUserId != null)
+            {
+                ticketViewModel.AssignedToUserDisplayName = db.Users.Find(ticket.AssignedToUserId).Name;
+            }
+            else
+            {
+                ticketViewModel.AssignedToUserDisplayName = "***";
+            }
+
             //var x = ticket.c.Count;
-            return View(ticket);
+            return View(ticketViewModel);
         }
 
         // GET: Tickets/Create
@@ -462,7 +526,7 @@ namespace BugTracker2.Controllers
             
 
             ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "Name");
-            ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "Name");
+            ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "Name", 2);
             //ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "Name");
             //Status will be set to Submitted in the post action
 
@@ -504,10 +568,14 @@ namespace BugTracker2.Controllers
                 var ticketProject = db.Projects.Find(projectIdInt);
                 ticketToAdd.TicketProject = ticketProject;
 
+                TicketHistory ticketHistory = TicketHistoryUpdater.New(db, ticketToAdd, currentUserId, "Ticket created");
+
+                db.TicketHistories.Add(ticketHistory);
                 db.Tickets.Add(ticketToAdd);
+
                 db.SaveChanges();
 
-                TicketHistoryUpdater.Update(db, ticketToAdd, currentUserId, "Ticket created");
+                //TicketHistoryUpdater.Update(db, ticketToAdd, currentUserId, "Ticket created");
 
                 //TicketHistory ticketHistory = new TicketHistory();
                 //ticketHistory.TicketId = ticket.Id;
@@ -693,27 +761,37 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketViewModel ticketViewModel)
         {
+
+            //ticket is declared before ModelState.IsValid because we will be returning to the
+            //ticket details screen whether the ModelState check succeeds
+
+            Ticket ticket = db.Tickets.Find(ticketViewModel.Id);
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            ApplicationUser currentUser = db.Users.Find(currentUserId);
+
             if (ModelState.IsValid)
             {
-                Ticket ticket = db.Tickets.Find(ticketViewModel.Id);
-                var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                
+                //var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
                 //List<string[]> updatedFields = new List<string[]>();
                 //string[] propertyUpdate = new string[3];
 
+                List<TicketHistory> ticketChanges = new List<TicketHistory>();
+
                 if (ticketViewModel.Title != ticket.Title)
-                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Title");
+                    ticketChanges.Add(TicketHistoryUpdater.New(db, ticket, currentUserId, "Title", ticket.Title, ticketViewModel.Title));
 
                 if (ticketViewModel.Description != ticket.Description)
-                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "Description");
+                    ticketChanges.Add(TicketHistoryUpdater.New(db, ticket, currentUserId, "Description", ticket.Description, ticketViewModel.Description));
 
                 if (ticketViewModel.TicketTypeId != ticket.TicketTypeId)
-                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketTypeId");
+                    ticketChanges.Add(TicketHistoryUpdater.New(db, ticket, currentUserId, "TicketTypeId", ticket.TicketTypeId, ticketViewModel.TicketTypeId));
 
                 if (ticketViewModel.TicketStatusId != ticket.TicketStatusId)
-                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketStatusId");
+                    ticketChanges.Add(TicketHistoryUpdater.New(db, ticket, currentUserId, "TicketStatusId", ticket.TicketStatusId, ticketViewModel.TicketStatusId));
 
                 if (ticketViewModel.TicketPriorityId != ticket.TicketPriorityId)
-                    TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketPriorityId");
+                    ticketChanges.Add(TicketHistoryUpdater.New(db, ticket, currentUserId, "TicketPriorityId", ticket.TicketPriorityId, ticketViewModel.TicketPriorityId));
 
                 ticket.Title = ticketViewModel.Title;
                 ticket.Description = ticketViewModel.Description;
@@ -723,8 +801,27 @@ namespace BugTracker2.Controllers
                 ticket.Updated = DateTimeOffset.Now;
 
                 db.Entry(ticket).State = EntityState.Modified;
+
+                foreach (var item in ticketChanges)
+                    db.TicketHistories.Add(item);
+
                 db.SaveChanges();
 
+                if (ticket.AssignedToUserId != null)
+                {
+                    ApplicationUser dev = db.Users.Find(ticket.AssignedToUserId);
+
+                    SendGridMessage myMessage = new SendGridMessage();
+
+                    myMessage.AddTo(dev.Email);
+                    myMessage.From = new MailAddress("andywonderly@gmail.com");
+                    myMessage.Subject = ("A project to which you are assigned has been modified.");
+                    myMessage.Html = "Your assigned project " + ticket.TicketProject.Name + " has had one or more fields modified by user " + currentUser.DisplayName + ".";
+                    var transportWeb = new Web(ConfigurationManager.AppSettings["SendGridAPIKey"]);
+                    transportWeb.DeliverAsync(myMessage);
+                }
+
+                /*
                 if (ticketViewModel.Description != ticket.Description)
                     TicketHistoryUpdater.Update(db, ticket, currentUserId, "Description");
 
@@ -739,11 +836,12 @@ namespace BugTracker2.Controllers
 
                 if (ticketViewModel.TicketPriorityId != ticket.TicketPriorityId)
                     TicketHistoryUpdater.Update(db, ticket, currentUserId, "TicketPriorityId");
+                */
 
                 //return RedirectToAction("Index");
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", new { id = ticket.Id });
         }
 
         // GET: Tickets/Delete/5
@@ -866,6 +964,7 @@ namespace BugTracker2.Controllers
         public ActionResult AssignTicket([Bind(Include = "selected,AssignedToUserId,TicketStatusId,TicketId")] AssignTicketViewModel ticket)
         {
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
             Ticket ticketToAssign = db.Tickets.Find(ticket.TicketId);
 
             //If the incoming AssignedToUserId is different, update the history
@@ -888,6 +987,17 @@ namespace BugTracker2.Controllers
                 db.Entry(ticketToAssign).Property("TicketStatusId").IsModified = true;
                 db.Entry(ticketToAssign).Property("AssignedToUserId").IsModified = true;
                 db.SaveChanges();
+
+                ApplicationUser dev = db.Users.Find(ticket.AssignedToUserId);
+
+                SendGridMessage myMessage = new SendGridMessage();
+
+                myMessage.AddTo(dev.Email);
+                myMessage.From = new MailAddress("andywonderly@gmail.com");
+                myMessage.Subject = ("You have been assigned to a project.");
+                myMessage.Html = "You have been assigned to the project " + ticketToAssign.TicketProject.Name + " by project manager " + currentUser.DisplayName + ".";
+                var transportWeb = new Web(ConfigurationManager.AppSettings["SendGridAPIKey"]);
+                transportWeb.DeliverAsync(myMessage);
 
             }
             return RedirectToAction("Index");
@@ -964,7 +1074,21 @@ namespace BugTracker2.Controllers
                 db.SaveChanges();
 
                 TicketHistoryUpdater.Update(db, comment.Ticket, currentUserId, "New comment");
-             }
+
+                if (assignedToUserId != null)
+                {
+                    ApplicationUser dev = db.Users.Find(ticket.AssignedToUserId);
+
+                    SendGridMessage myMessage = new SendGridMessage();
+
+                    myMessage.AddTo(dev.Email);
+                    myMessage.From = new MailAddress("andywonderly@gmail.com");
+                    myMessage.Subject = ("A project to which you are assigned has received a comment.");
+                    myMessage.Html = "Your assigned project " + ticket.TicketProject.Name + " has received the comment " + comment.Body + " from user " + currentUser.DisplayName + ".";
+                    var transportWeb = new Web(ConfigurationManager.AppSettings["SendGridAPIKey"]);
+                    transportWeb.DeliverAsync(myMessage);
+                }
+            }
 
             var ticket2 = db.Tickets.Find(comment.TicketId);
             return RedirectToAction("Details", new { id = comment.TicketId });
@@ -1040,6 +1164,21 @@ namespace BugTracker2.Controllers
                     db.SaveChanges();
 
                     TicketHistoryUpdater.Update(db, attachment.Ticket, currentUserId, "New attachment");
+
+                    if (assignedToUserId != null)
+                    {
+                        ApplicationUser dev = db.Users.Find(ticket.AssignedToUserId);
+
+                        SendGridMessage myMessage = new SendGridMessage();
+
+                        myMessage.AddTo(dev.Email);
+                        myMessage.From = new MailAddress("andywonderly@gmail.com");
+                        myMessage.Subject = ("A project to which you are assigned has received an attachment upload.");
+                        myMessage.Html = "Your assigned project " + ticket.TicketProject.Name + " has received the upload " + file.FileName + " from user " + currentUser.DisplayName +".";
+                        var transportWeb = new Web(ConfigurationManager.AppSettings["SendGridAPIKey"]);
+                        transportWeb.DeliverAsync(myMessage);
+                    }
+
                 }
                 else
                 {

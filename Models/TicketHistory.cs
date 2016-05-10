@@ -18,6 +18,9 @@ namespace BugTracker2.Models
         public string UserDisplayName { get; set; }
 
         public virtual Ticket Ticket { get; set; }
+
+
+
     }
 
 }

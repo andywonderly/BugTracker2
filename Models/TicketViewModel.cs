@@ -37,5 +37,9 @@ namespace BugTracker2.Models
         public bool CurrentUserIsAssignedDev { get; set; }
         public bool CurrentUserIsProjectManager { get; set; }
 
+        public ICollection<TicketHistory> TicketHistories { get; set; }
+        public ICollection<TicketComment> TicketComments { get; set; }
+        public ICollection<TicketAttachment> TicketAttachments { get; set; }
+
     }
 }
