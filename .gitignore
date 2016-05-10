@@ -282,3 +282,4 @@ $RECYCLE.BIN/
 *.config
 App_Start/IdentityConfig.cs
 App_Start/Startup.Auth.cs
+App_Start/Startup.Auth.cs
