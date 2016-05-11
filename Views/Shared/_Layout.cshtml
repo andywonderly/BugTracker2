@@ -6,6 +6,21 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <style>
+        .DetailNavActive {
+            background-color: green;
+        }
+
+        .DetailNavInactive {
+            background-color: blue;
+        }
+
+        body{
+            overflow-y: scroll;
+        }
+
+
+    </style>
 
     <script type="text/javascript">
         var appInsights=window.appInsights||function(config){
@@ -17,17 +32,39 @@
         window.appInsights=appInsights;
         appInsights.trackPageView();
 
-        openTab("Details")
-        function openTab(cityName) {
+        
+
+        //This function changes the background color of all list items to white,
+        //then changest the one that was clicked to lightgray.        
+
+        function openTab(tabName, listItem) {
             var i;
             var x = document.getElementsByClassName("tabName");
             for (i = 0; i < x.length; i++) {
                 x[i].style.display = "none";
             }
-            document.getElementById(cityName).style.display = "block";
+
+            var inactiveColor = "#F0F0F0";
+            var activeColor = "lightgray";
+
+            document.getElementById(tabName).style.display = "block";
+
+            document.getElementById("DetailsTab").style.backgroundColor = inactiveColor;
+            document.getElementById("HistoryTab").style.backgroundColor = inactiveColor;
+            document.getElementById("Comment-attachTab").style.backgroundColor = inactiveColor;
+            document.getElementById(listItem).style.backgroundColor = activeColor;
+
+            $("body").css({ "overflow-y": "scroll" });
+      
+            
+            
         }
 
-    
+
+        
+
+        
+
     </script>
 </head>
 <body>
@@ -52,7 +89,7 @@
             </div>
         </div>
     </div>
-    <div class="container body-content">
+    <div id ="BodyContainer" class="container body-content">
         @RenderBody()
         <hr />
         <footer>
@@ -63,5 +100,15 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+    <script type="text/javascript">
+        $(document).ready(function ()
+        {
+            openTab("Details", "DetailsTab");
+            
+            
+        });
+       
+       
+    </script>
 </body>
 </html>

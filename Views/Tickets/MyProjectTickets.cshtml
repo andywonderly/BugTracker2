@@ -16,19 +16,19 @@
         src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 
 <h2>@ViewBag.Title</h2>
-<div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
+<div class="TicketMenuInactive">
     @Html.ActionLink("My Submitted Tickets", "MySubmittedTickets")
 </div>
-<div style="display: inline-block; padding-left: 3px; padding-right: 3px; background-color: lightgray;">
+<div class="TicketMenuActive">
     @Html.ActionLink("My Project Tickets", "MyProjectTickets")
 </div>
 @if (ViewContext.HttpContext.User.IsInRole("Admin"))
 {
-    <div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
+    <div class="TicketMenuInactive">
         @Html.ActionLink("All Tickets", "AllTickets")
     </div>
 }
-<div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
+<div class="TicketMenuInactive">
     <b>@Html.ActionLink("Create New Ticket", "CreateTicket")</b>
 </div>
 

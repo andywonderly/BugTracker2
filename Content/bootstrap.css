@@ -6813,4 +6813,28 @@ td.visible-print {
   td.hidden-print {
     display: none !important;
   }
+
+  .navbarDetails {
+  position: relative;
+  z-index: 1000;
+  min-height: 50px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+}
+
+  .navbar-navDetails {
+  margin: 7.5px -15px;
+}
+
+.navbar-navDetails > li > a {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 20px;
+}
+
+.navDetails {
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+}
 }

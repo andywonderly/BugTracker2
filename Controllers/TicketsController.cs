@@ -477,17 +477,29 @@ namespace BugTracker2.Controllers
             ticketViewModel.TicketHistories = ticket.TicketHistories.ToList();
             ticketViewModel.TicketAttachments = ticket.TicketAttachments.ToList();
             ticketViewModel.TicketComments = ticket.TicketComments.ToList();
-
+            ticketViewModel.TicketId = id.Value;
 
             if (ticket.AssignedToUserId != null)
             {
-                ticketViewModel.AssignedToUserDisplayName = db.Users.Find(ticket.AssignedToUserId).Name;
+                ticketViewModel.AssignedToUserDisplayName = db.Users.First(n=> n.Id == ticket.AssignedToUserId).DisplayName;
             }
             else
             {
                 ticketViewModel.AssignedToUserDisplayName = "***";
             }
 
+            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
+
+            if ( (this.User.IsInRole("Project Manager") && !(this.User.IsInRole("Admin")) && 
+                projectUsersHelper.IsUserOnProject(ticket.TicketProject.Id, currentUser.Id)) || 
+                (this.User.IsInRole("Developer") && !(this.User.IsInRole("Admin")) && 
+                !(this.User.IsInRole("Project Manager")) && currentUser.Id == ticket.AssignedToUserId) ||
+                this.User.IsInRole("Admin") )
+            {
+                ViewBag.ShowEditButton = true;
+            }
+
+            //var x = ticketViewModel.AssignedToUserDisplayName;
             //var x = ticket.c.Count;
             return View(ticketViewModel);
         }
@@ -1110,13 +1122,24 @@ namespace BugTracker2.Controllers
         {
             //Permissions code copied from ticket comments
 
-            var userRolesHelper = new UserRolesHelper(db);
-            var projectUsersHelper = new ProjectUsersHelper();
-            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            ApplicationUser currentUser = db.Users.Find(currentUserId);
-            var ticketOwnerId = db.Tickets.Find(attachment.TicketId).OwnerUserId;
-            var assignedToUserId = db.Tickets.Find(attachment.TicketId).AssignedToUserId;
-            var ticket = db.Tickets.Find(attachment.TicketId);
+            if (ModelState.IsValid)
+            {
+
+                var x = attachment.TicketId;
+                var userRolesHelper = new UserRolesHelper(db);
+                var projectUsersHelper = new ProjectUsersHelper();
+                var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                ApplicationUser currentUser = db.Users.Find(currentUserId);
+
+                var assignedToUserId = db.Tickets.Find(attachment.TicketId).AssignedToUserId;
+                var ticket = db.Tickets.Find(attachment.TicketId);
+
+                var ticketOwnerId = "";
+
+                if(db.Tickets.Find(attachment.TicketId).OwnerUserId != null)
+                    ticketOwnerId = db.Tickets.Find(attachment.TicketId).OwnerUserId;
+
+
             //Ticket comment permission checks:
 
             //If the user is a submitter only, and their Id doesn't match the ticket owner Id, kick back.
@@ -1124,6 +1147,7 @@ namespace BugTracker2.Controllers
                 && (!userRolesHelper.IsUserInRole(currentUserId, "Developer")
                 && !userRolesHelper.IsUserInRole(currentUserId, "Project Manager")
                 && !userRolesHelper.IsUserInRole(currentUserId, "Admin")))
+                
                 if (ticketOwnerId.ToString() != currentUserId)
                     return RedirectToAction("Details", new { id = attachment.TicketId });
 
@@ -1146,8 +1170,7 @@ namespace BugTracker2.Controllers
 
             
 
-            if(ModelState.IsValid)
-            {
+            
                 if (UploadValidator.ValidateUpload(file))
                 {
                     

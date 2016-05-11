@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -17,6 +18,7 @@ namespace BugTracker2.Models
         public string selected { get; set; }
         public string Name { get; set; }
         public string Title { get; set; }
+        [DataType(DataType.MultilineText)]
         public string Description { get; set; }
         public string TicketTypeId { get; set; }
         public string TicketPriorityId { get; set; }

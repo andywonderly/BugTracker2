@@ -55,13 +55,13 @@ namespace BugTracker2
             //   consumerSecret: "");
 
             app.UseFacebookAuthentication(
-               appId: "232432210469194",
-               appSecret: "bfd0cccf4e9765e6ae30ecc83f4e5221");
+               appId: "1547878362180218",
+               appSecret: "7fd575fcb72e08f63af22ffa80f256eb");
 
             app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
             {
                 ClientId = "1079239078198-mjf3do93a5g1ecqkl2ig3hl9jg7p7d80.apps.googleusercontent.com",
-                ClientSecret = "LYsEkGjYYrdOhhRMeLIKbA27"
+                ClientSecret = "aiRHASYRi0eE-YWoUHcldFRR"
             });
         }
     }

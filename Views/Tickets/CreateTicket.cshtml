@@ -11,20 +11,21 @@
 @if (ViewContext.HttpContext.User.IsInRole("Admin") || ViewContext.HttpContext.User.IsInRole("Developer")
                     || ViewContext.HttpContext.User.IsInRole("Project Manager"))
 {
-    <div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
+    <div class="TicketMenuInactive">
         @Html.ActionLink("My Project Tickets", "MyProjectTickets")
     </div>
 }
 @if (ViewContext.HttpContext.User.IsInRole("Admin"))
 {
-    <div style="display: inline-block; padding-left: 3px; padding-right: 3px;">
+    <div class="TicketMenuInactive">
         @Html.ActionLink("All Tickets", "AllTickets")
     </div>
 }
-<div style="display: inline-block; padding-left: 3px; padding-right: 3px; background-color: lightgray;">
+<div class="TicketMenuActive">
     <b>@Html.ActionLink("Create New Ticket", "CreateTicket")</b>
 </div>
 
+<div style="min-height: 25px;"></div>
 
 @using (Html.BeginForm("CreateTicket", "Tickets", FormMethod.Post,
                             new { enctype = "Multipart/form-data" }))
@@ -32,29 +33,34 @@
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>Tickets</h4>
-        <hr />
+
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
-            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                Title
+            </div>
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control", @placeholder="Title"} })
                 @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                Description
+            </div>
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", style="height: 128px;", @placeholder="Description" } })
                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
             </div>
         </div>
 
 
-        Choose a project for this ticket:
+     
         <div class="form-group">
-            @Html.LabelFor(model => model.ProjectId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                Choose a project
+            </div>
             <div class="col-md-10">
                 @Html.DropDownList("ProjectId", null, htmlAttributes: new { @class = "form-control" })
                 
@@ -62,9 +68,10 @@
             </div>
         </div>
 
-        Assign a ticket type:
         <div class="form-group">
-            @Html.LabelFor(model => model.TicketTypeId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                Choose a ticket type
+            </div>
             <div class="col-md-10">
                 @Html.DropDownList("TicketTypeId", null, htmlAttributes: new { @class = "form-control" })
 
@@ -73,7 +80,9 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.TicketPriorityId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                Choose a priority level
+            </div>
             <div class="col-md-10">
                 @Html.DropDownList("TicketPriorityId", null, htmlAttributes: new { @class = "form-control" })
 
@@ -84,7 +93,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Submit ticket" class="btn btn-default" />
             </div>
         </div>
     </div>
