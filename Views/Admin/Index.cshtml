@@ -1,26 +1,23 @@
 ﻿@model IEnumerable<BugTracker2.Models.ApplicationUser>
 
 @{
-    ViewBag.Title = "ListUsers";
+    ViewBag.Title = "User List";
 }
 
 <h2>ListUsers</h2>
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.UserName)
+            Username/email
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.DisplayName)
+            Display Name
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.FirstName)
+            First Name
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.LastName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Email)
+            Last Name
         </th>
         <th>
             Actions
@@ -43,10 +40,8 @@
                 @Html.DisplayFor(model => item.LastName)
             </td>
             <td>
-                @Html.DisplayFor(model => item.Email)
-            </td>
-            <td>
                 @Html.ActionLink("Edit Roles", "EditUser", new { id = item.Id })
+                
             </td>
         </tr>
     }

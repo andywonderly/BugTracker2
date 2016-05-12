@@ -226,6 +226,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AssignTicketViewModel.cs" />
+    <Compile Include="Models\DashboardViewModel.cs" />
     <Compile Include="Models\Helpers\ProjectsHelper.cs" />
     <Compile Include="Models\Helpers\TicketsHelper.cs" />
     <Compile Include="Models\Helpers\TicketUsersHelper.cs" />
@@ -337,6 +338,7 @@
     <Content Include="Views\Tickets\EditTicket - Copy.cshtml" />
     <Content Include="Views\Tickets\TicketAttachment.cshtml" />
     <Content Include="Views\Tickets\MySubmittedTickets.cshtml" />
+    <Content Include="Views\Home\Index - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
