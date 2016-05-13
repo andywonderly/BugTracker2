@@ -12,5 +12,6 @@ namespace BugTracker2.Models
         public List<Ticket> UserAssignments { get; set; }
         public List<Project> UserProjects { get; set; }
         public List<Ticket> UserTickets { get; set; }
+        public List<TicketStatus> TicketStatuses { get; set; }
     }
 }

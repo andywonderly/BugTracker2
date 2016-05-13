@@ -73,7 +73,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Title)
+                    @Html.ActionLink(item.Title, "Details", new { id = item.Id })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Created.LocalDateTime)

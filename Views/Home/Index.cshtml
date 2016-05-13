@@ -4,37 +4,64 @@
     ViewBag.Title = "Home Page";
 }
 
-<h2>Welcome to Bugtracker, @Model.UserDisplayName</h2>
+<h2>Welcome to Bugtracker, @Html.ActionLink(Model.UserDisplayName, "Index", "Manage")</h2>
 
-<div class="col-md-12">
-    <div class="col-md-4">
-        <h4>Your Assignmented Tickets</h4>
-        @foreach (var item in Model.UserAssignments)
+
+
+    <div class="col-md-4" style="padding-left: 0px;">
+        <h4>Your Assigned Tickets</h4>
+        @if(Model.UserAssignments.Count > 0)
+        {
+            foreach (var item in Model.UserAssignments)
+            {
+                <div class="TicketComment">
+                    @Html.ActionLink(item.Title + " [" + Model.TicketStatuses.First(n => n.Id.ToString() == item.TicketStatusId).Name + "]", "Details", "Tickets", new { id = item.Id }, new { })
+                    <br />
+                    Assigned @item.TicketHistories.Last(n => n.Property == "AssignedToUserId").DateTime.LocalDateTime
+                </div>
+            }
+        } else
         {
             <div class="TicketComment">
-                @item.Title
+                You are not assigned to any tickets.
             </div>
         }
     </div>
     <div class="col-md-4">
         <h4>Your Projects</h4>
-
-        @foreach(var item in Model.UserProjects)
+        @if (Model.UserProjects.Count > 0)
+        {
+            foreach (var item in Model.UserProjects)
+            {
+                <div class="TicketAttachment">
+                    @Html.ActionLink(item.Name, "Index", "Projects")
+                </div>
+            }
+        } else
         {
             <div class="TicketAttachment">
-                @item.Name
+                You are not assigned to any projects.
             </div>
         }
-    </div>
-    <div class="col-md-4">
-        <h4>Your Tickets</h4>
 
-        @foreach(var item in Model.UserTickets)
+    </div>
+    <div class="col-md-4" style="padding-right: 0px;">
+        <h4>Your Submitted Tickets</h4>
+
+        @if (Model.UserTickets.Count > 0)
+        {
+            foreach (var item in Model.UserTickets)
+            {
+                <div class="TicketHistory">
+                    @item.Title
+                </div>
+            }
+        } else
         {
             <div class="TicketHistory">
-                @item.Title
+                You have no submitted tickets.
             </div>
         }
     </div>
-</div>
  
+<p style="color: transparent;">.</p>

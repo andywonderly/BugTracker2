@@ -13,6 +13,7 @@ namespace BugTracker2.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+        [Authorize]
         public ActionResult Index()
         {
             DashboardViewModel dashboardViewModel = new DashboardViewModel();
@@ -38,6 +39,8 @@ namespace BugTracker2.Controllers
             foreach (var item in allTickets)
                 if (item.OwnerUserId == currentUserId)
                     dashboardViewModel.UserTickets.Add(item);
+
+            dashboardViewModel.TicketStatuses = db.TicketStatuses.ToList();
             
             return View(dashboardViewModel);
         }
