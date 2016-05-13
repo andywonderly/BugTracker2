@@ -148,7 +148,7 @@
     @if (ViewBag.ShowForms != false)
     {
         <span style="font-size: 1.75em;">Add a comment</span>
-        <div class="TicketBody">
+        <div class="UploadAttachForm">
             @using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
             {
 
@@ -170,7 +170,7 @@
     @if (ViewBag.ShowForms != false)
     {
         <h3>Upload an attachment</h3>
-        <div class="TicketBody">
+        <div class="UploadAttachForm">
             @using (Html.BeginForm("TicketAttachment", "Tickets", FormMethod.Post, new { enctype = "Multipart/form-data" }))
             {
             <div class="form-group">

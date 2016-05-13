@@ -15,8 +15,5 @@ namespace BugTracker2.Models
             
     }
 
-    public class ProjectListViewModel
-    {
 
-    }
 }

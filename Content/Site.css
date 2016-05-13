@@ -66,6 +66,14 @@ textarea {
     border: 2px solid #484848;
 }
 
+.UploadAttachForm {
+    max-width: 512px;
+    
+    padding: 5px; margin-bottom: 5px;
+    border-radius: 5px;
+    border: 2px solid #484848;
+}
+
 .TicketBody {
     max-width: 512px;
     background-color: lightgray;

@@ -454,6 +454,10 @@ namespace BugTracker2.Controllers
                 }  
             }
 
+            //If you submitted the ticket, the comment and attach forms will be shown
+            if (currentUserId == ticket.OwnerUserId)
+                ViewBag.ShowForms = true; 
+
             //Convert the status, priority, and type Ids to ints
 
             var type = 0;
@@ -497,6 +501,10 @@ namespace BugTracker2.Controllers
                 this.User.IsInRole("Admin") )
             {
                 ViewBag.ShowEditButton = true;
+            }
+            else
+            {
+                ViewBag.ShowEditButton = false;
             }
 
             //var x = ticketViewModel.AssignedToUserDisplayName;

@@ -41,6 +41,18 @@ namespace BugTracker2.Controllers
                     dashboardViewModel.UserTickets.Add(item);
 
             dashboardViewModel.TicketStatuses = db.TicketStatuses.ToList();
+            dashboardViewModel.TicketPriorities = db.TicketPriorities.ToList();
+            dashboardViewModel.TicketTypes = db.TicketTypes.ToList();
+            dashboardViewModel.AllUsers = new List<ApplicationUser>();
+
+            List<ApplicationUser> AllUsers = db.Users.ToList();
+
+            //List all users with Id and display name only so we aren't sending critical info to the view
+            foreach(var item in AllUsers)
+            {
+                var user = new ApplicationUser { Id = item.Id, DisplayName = item.DisplayName };
+                dashboardViewModel.AllUsers.Add(user);
+            }
             
             return View(dashboardViewModel);
         }

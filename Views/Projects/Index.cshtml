@@ -10,7 +10,13 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
+            Project Name
+        </th>
+        <th>
+            Project Users
+        </th>
+        <th>
+            Project Tickets
         </th>
         <th>
             Actions
@@ -19,20 +25,32 @@
 
 
 
-    @foreach (var item in Model)
+    @*@foreach (var item in model)
     {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.Name)
+                @Html.Raw(item.Name)
             </td>
             <td>
-                @Html.ActionLink("Edit project", "EditProject", new { id = item.Id }) 
-                <br />
-                @Html.ActionLink("Edit users", "EditProjectUsers", new { id = item.Id })
-                <br />
-                @Html.ActionLink("Delete project","DeleteProject", new { id = item.Id })
+                @foreach(var item2 in item.ProjectUsers)
+                {
+
+                        @Html.Raw(item2.DisplayName);
+                        <br />
+                    
+                }
+            </td>
+            <td>
+                @foreach(var item2 in Model.AllTickets)
+                {
+                    Html.Raw(item2.Title);
+                    <br />
+                }
+            </td>
+            <td>
+
             </td>
         </tr>
-    }
+    }*@
 
 </table>

@@ -235,6 +235,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Project.cs" />
+    <Compile Include="Models\ProjectListViewModel.cs" />
     <Compile Include="Models\ProjectViewModel.cs" />
     <Compile Include="Models\ProjectUserViewModel.cs" />
     <Compile Include="Models\TicketAssignee.cs" />
@@ -339,6 +340,8 @@
     <Content Include="Views\Tickets\TicketAttachment.cshtml" />
     <Content Include="Views\Tickets\MySubmittedTickets.cshtml" />
     <Content Include="Views\Home\Index - Copy.cshtml" />
+    <Content Include="Views\Projects\Details.cshtml" />
+    <Content Include="Views\Projects\Index - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

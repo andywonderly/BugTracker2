@@ -11,6 +11,7 @@ using System;
 using System.Net;
 using BugTracker2.Models.Helpers;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 
 namespace BugTracker2.Controllers
 {
@@ -44,8 +45,15 @@ namespace BugTracker2.Controllers
                     if (item == "Admin")
                     {
                         //var projects = db.Projects.ToList();
-                        var projects = db.Projects.ToList();
-                        return View(projects); //return all projects if user is Admin
+                        //var projects = db.Projects.ToList();
+
+                        //Revision:  Use ProjectList() to return the viewmodel.  Above code
+                        //has not been deleted yet
+
+                        var projectList = ProjectList();
+
+                        return View(projectList); //return all projects if user is Admin
+
                     }
 
             if (currentUserRoles != null)
@@ -62,11 +70,17 @@ namespace BugTracker2.Controllers
                         //var userProjects = projectUsersHelper.ListUserProjects(currentUserId); //Get user project list
                         //var projects = userProjects.ToList();
                     
-                    var projects = currentUser.Projects.ToList();
+                        //var projects = currentUser.Projects.ToList();
                         //foreach (var item2 in projects) //add them
                         //    projects.Add(item2);
-                        
-                        return View(projects); //return them
+
+
+                        //Revision:  Use ProjectList() to return the viewmodel.  Above code
+                        //has not been deleted yet
+                        var projectList = ProjectList();
+
+
+                        return View(projectList); //return them
                     }
             }
 
@@ -74,7 +88,8 @@ namespace BugTracker2.Controllers
 
 
 
-            
+
+
             return View();
         }
 
@@ -330,6 +345,50 @@ namespace BugTracker2.Controllers
             }
             //return RedirectToAction("EditProjectUsers", new { model.Id });
             return RedirectToAction("Index");
+        }
+
+        
+        //Project Details
+        public IEnumerable<Project> ProjectList()
+        {
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+            //Create helper objects to allow access to helper functions
+            //UserRolesHelper userRolesHelper = new UserRolesHelper(db);
+            ProjectUsersHelper projectUsersHelper = new ProjectUsersHelper();
+
+            List<Project> projectList = new List<Project>();
+            List<Project> allProjects = db.Projects.ToList();
+            IEnumerable<Project> projectListEnumerable = new List<Project>();
+
+            foreach(var item in allProjects)
+            {
+
+                ICollection<ApplicationUser> thisProjectUsers = item.ProjectUsers.ToList();
+                ICollection<ApplicationUser> thisProjectUsersIdNameOnly = new List<ApplicationUser>();
+
+                foreach (var item2 in thisProjectUsers)
+                    thisProjectUsersIdNameOnly.Add(new ApplicationUser { Id = item2.Id, DisplayName = item2.DisplayName });
+
+                projectList.Add(new Project
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    ProjectTickets = item.ProjectTickets.ToList(),
+                    ProjectUsers = thisProjectUsersIdNameOnly
+                });
+
+
+            };
+
+
+            //List<Ticket> allTickets = db.Tickets.ToList();
+            //projectList.ProjectUsersHelper = new ProjectUsersHelper();
+
+
+            projectListEnumerable = allProjects.ToList();
+            return projectListEnumerable;
+            
         }
 
 
