@@ -342,6 +342,8 @@
     <Content Include="Views\Home\Index - Copy.cshtml" />
     <Content Include="Views\Projects\Details.cshtml" />
     <Content Include="Views\Projects\Index - Copy.cshtml" />
+    <Content Include="Views\Projects\_ProjectTickets.cshtml" />
+    <Content Include="Views\Projects\_ProjectUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

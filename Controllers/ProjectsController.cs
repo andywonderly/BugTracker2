@@ -391,6 +391,71 @@ namespace BugTracker2.Controllers
             
         }
 
+        [Authorize]
+        public ActionResult _ProjectUsers(int Id)
+        {
+            Project project = db.Projects.Find(Id);
+            List<ApplicationUser> projectUsers = project.ProjectUsers.ToList();
+
+            List<ProjectUserViewModel> users = new List<ProjectUserViewModel>();
+
+
+            //Add Id and displayName to the ProjectUsersViewModel users
+            foreach(var item in projectUsers)
+            {
+                users.Add(new ProjectUserViewModel
+                {
+                    UserId = item.Id,
+                    DisplayName = item.DisplayName                
+                });
+            }
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+
+          
+
+            //Add the string of roles
+            foreach (var item in users)
+            {
+                IList<string> roles = helper.ListUserRoles(item.UserId);
+
+                foreach (var item2 in roles)
+                {
+                    switch (item2)
+                    {
+                        case "Admin":
+                            item.Roles += "[Admin] ";
+                            break;
+                        case "Project Manager":
+                            item.Roles += "[PM] ";
+                            break;
+                        case "Developer":
+                            item.Roles += "[Dev] ";
+                            break;
+                        case "Submitter":
+                            item.Roles += "[Subm] ";
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+            }
+
+            return View(users);
+        }
+
+        [Authorize]
+        public ActionResult _ProjectTickets(int Id)
+        {
+            Project project = db.Projects.Find(Id);
+
+
+            IEnumerable<Ticket> tickets = project.ProjectTickets.ToList();
+
+            return View(tickets);
+        }
+
 
 
     }

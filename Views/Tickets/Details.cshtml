@@ -116,37 +116,44 @@
             User: <b>@Html.Raw(item.UserDisplayName)</b>
             <br />
             When: @Html.Raw(item.DateTime.LocalDateTime)
+            
+
             @if (item.NewValue != null)
             {
                 <br />
-                @Html.Raw("New value: ");
+                @Html.Raw("New value: ")
                 <b>
-                    @Html.Raw(item.NewValue);
+                    @Html.Raw(item.NewValue)
                 </b>
             }
 
             @if (item.OldValue != null)
             {
                 <br />
-                @Html.Raw("Previous value: ");
+                @Html.Raw("Previous value: ")
                 <b>
-                    @Html.Raw(item.OldValue);
+                    @Html.Raw(item.OldValue)
                 </b>
                 @*These are on different lines so you can style OldValue if you please*@
             }
+            
         </div>
-    }
+    
+
+
+            }
+
 
 
     <p>
         @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
         @Html.ActionLink("Back to List", "Index")
     </p>
-</div>  
+</div>
 
 <div id="Comment-attach" class="tabName">
     @if (ViewBag.ShowForms != false)
-    {
+                            {
         <span style="font-size: 1.75em;">Add a comment</span>
         <div class="UploadAttachForm">
             @using (Html.BeginForm("TicketComment", "Tickets", FormMethod.Post))
@@ -168,7 +175,7 @@
     <br />
 
     @if (ViewBag.ShowForms != false)
-    {
+                    {
         <h3>Upload an attachment</h3>
         <div class="UploadAttachForm">
             @using (Html.BeginForm("TicketAttachment", "Tickets", FormMethod.Post, new { enctype = "Multipart/form-data" }))
