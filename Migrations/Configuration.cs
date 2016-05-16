@@ -53,6 +53,23 @@ namespace BugTracker2.Migrations
                 roleManager.Create(new IdentityRole { Name = "Submitter" });
             }
 
+            if (!context.Users.Any(r => r.DisplayName == "Admin Demo"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Admin Demo" });
+            }
+            if (!context.Users.Any(r => r.DisplayName == "Project Manager Demo"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Project Manager Demo" });
+            }
+            if (!context.Users.Any(r => r.DisplayName == "Developer Demo"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Developer Demo" });
+            }
+            if (!context.Users.Any(r => r.DisplayName == "Submitter Demo"))
+            {
+                roleManager.Create(new IdentityRole { Name = "Submitter Demo" });
+            }
+
             var userManager = new UserManager<ApplicationUser>(
                     new UserStore<ApplicationUser>(context));
 
@@ -70,6 +87,68 @@ namespace BugTracker2.Migrations
 
             var userId = userManager.FindByEmail("andywonderly@gmail.com").Id;
             userManager.AddToRole(userId, "Admin");
+
+            //Create demo logins
+
+            if (!context.Users.Any(u => u.Email == "AdminDemo@awonderly-bugtracker.com"))
+            {
+                userManager.Create(new ApplicationUser
+                {
+                    UserName = "Admin Demo",
+                    Email = "AdminDemo@awonderly-bugtracker.com",
+                    FirstName = "Admin",
+                    LastName = "Demo",
+                    DisplayName = "Admin Demo"
+                }, "clickboom");
+            }
+
+            //var adminDemoId = userManager.FindByEmail("AdminDemo@awonderly-bugtracker.com").Id;
+            //userManager.AddToRole(adminDemoId, "Admin Demo");
+
+            if (!context.Users.Any(u => u.Email == "ProjectManagerDemo@awonderly-bugtracker.com"))
+            {
+                userManager.Create(new ApplicationUser
+                {
+                    UserName = "Project Manager Demo",
+                    Email = "ProjectManagerDemo@awonderly-bugtracker.com",
+                    FirstName = "Project Manager",
+                    LastName = "Demo",
+                    DisplayName = "Project Manager Demo"
+                }, "clickboom");
+            }
+
+            //var PMDemoId = userManager.FindByEmail("ProjectManagerDemo@awonderly-bugtracker.com").Id;
+            //userManager.AddToRole(PMDemoId, "Project Manager Demo");
+
+            if (!context.Users.Any(u => u.Email == "DeveloperDemo@awonderly-bugtracker.com"))
+            {
+                userManager.Create(new ApplicationUser
+                {
+                    UserName = "Developer Demo",
+                    Email = "DeveloperDemo@awonderly-bugtracker.com",
+                    FirstName = "Developer",
+                    LastName = "Demo",
+                    DisplayName = "Devloper Demo"
+                }, "clickboom");
+            }
+
+            //var developerDemoId = userManager.FindByEmail("DeveloperDemo@awonderly-bugtracker.com").Id;
+            //userManager.AddToRole(developerDemoId, "Developer Demo");
+
+            if (!context.Users.Any(u => u.Email == "SubmitterDemo@awonderly-bugtracker.com"))
+            {
+                userManager.Create(new ApplicationUser
+                {
+                    UserName = "Submitter Demo",
+                    Email = "SubmitterDemo@awonderly-bugtracker.com",
+                    FirstName = "Submitter",
+                    LastName = "Demo",
+                    DisplayName = "Submitter Demo"
+                }, "clickboom");
+            }
+
+            //var submitterDemoId = userManager.FindByEmail("SubmitterDemo@awonderly-bugtracker.com").Id;
+            //userManager.AddToRole(developerDemoId, "Submitter Demo");
 
             context.TicketPriorities.AddOrUpdate(
                 n => n.Name,

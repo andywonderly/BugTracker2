@@ -18,9 +18,17 @@ namespace BugTracker2.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            
-            var user = db.Users;
-            return View(user);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+
+            var users = db.Users;
+
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+
+
+            return View(users);
         }
 
         //public ActionResult EditUser(string id = "59d21208-39c4-404c-bcca-cb563b2428b3")
@@ -32,7 +40,8 @@ namespace BugTracker2.Controllers
                 RedirectToAction("Index");
             }
 
-
+            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
 
             var user = db.Users.Find(id);
             UserRolesHelper helper = new UserRolesHelper(db);
@@ -51,6 +60,10 @@ namespace BugTracker2.Controllers
             model.Id = user.Id;
             model.selected = helper.ListUserRoles(id).ToArray();
             model.roles = new MultiSelectList(db.Roles, "Name", "Name", model.selected);
+
+
+
+
             return View(model);
         }
 
@@ -59,6 +72,9 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditUser([Bind(Include="selected, Id, Name, roles")] AdminUserViewModel model)
         {
+
+
+
             if (ModelState.IsValid)
             {
                 //Declare variable of the application context

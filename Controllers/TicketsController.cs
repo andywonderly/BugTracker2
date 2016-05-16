@@ -23,7 +23,7 @@ namespace BugTracker2.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Tickets
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         public ActionResult Index()
         { 
             //This Index action is a navigation-only action based around a cookie.
@@ -54,9 +54,9 @@ namespace BugTracker2.Controllers
             return RedirectToAction("MySubmittedTickets");
         }
 
-            // GET: Tickets
-            [Authorize(Roles ="Admin, Project Manager, Developer, Submitter")]
-            public ActionResult MySubmittedTickets()
+        // GET: Tickets
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
+        public ActionResult MySubmittedTickets()
             {
                        
             //This controller action returns tickets that the current user has submitted.
@@ -173,7 +173,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: MyProjectTickets
-        [Authorize(Roles ="Admin, Project Manager, Developer")]
+        [Authorize(Roles ="Admin, Project Manager, Developer, Admin Demo, Project Manager Demo, Developer Demo")]
         public ActionResult MyProjectTickets()
         {
             //HttpContext.Current.Response.Cookies.Remove("TicketNav");
@@ -338,7 +338,7 @@ namespace BugTracker2.Controllers
         }
 
         //GET:  Tickets/AllTickets
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin, Admin Demo")]
         public ActionResult AllTickets()
         {
             HttpCookie TicketNav = new HttpCookie("TicketNav");
@@ -418,7 +418,7 @@ namespace BugTracker2.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         // GET: Tickets/Details/5
         public ActionResult Details(int? id)
         {
@@ -521,7 +521,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: Tickets/Create
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         public ActionResult CreateTicket()
         {
             var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
@@ -566,16 +566,26 @@ namespace BugTracker2.Controllers
         // POST: Tickets/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CreateTicket([Bind(Include = "Id, Title, Description, ProjectId, selected, TicketTypeId, TicketPriorityId")] TicketViewModel ticket)
         {
 
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             //CREATE VIEW NEEDS A LIST OF PROJECTS TO SELECT FROM
             if (ModelState.IsValid)
             {
-                var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                //var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
 
                 var ticketToAdd = new Ticket() { TicketStatusId = "1" };
 
@@ -623,7 +633,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: Tickets/Edit/5
-        [Authorize(Roles ="Admin, Project Manager, Developer")]
+        [Authorize(Roles ="Admin, Project Manager, Developer, Admin Demo, Project Manager Demo, Developer Demo")]
         public ActionResult EditTicket(int? id)
         {
 
@@ -792,18 +802,28 @@ namespace BugTracker2.Controllers
         // POST: Tickets/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles ="Admin, Project Manager, Developer")]
+        [Authorize(Roles ="Admin, Project Manager, Developer, Admin Demo, Project Manager Demo, Developer Demo")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult EditTicket([Bind(Include = "Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] TicketViewModel ticketViewModel)
         {
 
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             //ticket is declared before ModelState.IsValid because we will be returning to the
             //ticket details screen whether the ModelState check succeeds
 
             Ticket ticket = db.Tickets.Find(ticketViewModel.Id);
-            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            //var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            //ApplicationUser currentUser = db.Users.Find(currentUserId);
 
             if (ModelState.IsValid)
             {
@@ -881,7 +901,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: Tickets/Delete/5
-        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Admin Demo, Project Manager Demo, Developer Demo")]
         public ActionResult DeleteTicket(int? id)
         {
             if (id == null)
@@ -897,11 +917,21 @@ namespace BugTracker2.Controllers
         }
 
         // POST: Tickets/Delete/5
-        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Admin Demo, Project Manager Demo, Developer Demo")]
         [HttpPost, ActionName("DeleteTicket")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             Ticket tickets = db.Tickets.Find(id);
             db.Tickets.Remove(tickets);
             db.SaveChanges();
@@ -909,7 +939,7 @@ namespace BugTracker2.Controllers
         }
 
         //GET: Tickets/AssignTicket
-        [Authorize(Roles ="Admin, Project Manager")]
+        [Authorize(Roles ="Admin, Project Manager, Admin Demo, Project Manager Demo")]
         public ActionResult AssignTicket(int id)
         {
             Ticket ticket = db.Tickets.Find(id);
@@ -994,13 +1024,23 @@ namespace BugTracker2.Controllers
             //return RedirectToAction("Index"); //You should only get here if you're not on the ticket's project
         }
 
-        [Authorize(Roles = "Admin, Project Manager")]
+        [Authorize(Roles = "Admin, Project Manager, Admin Demo, Project Manager Demo")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult AssignTicket([Bind(Include = "selected,AssignedToUserId,TicketStatusId,TicketId")] AssignTicketViewModel ticket)
         {
-            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            var currentUserId = User.Identity.GetUserId();
             var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
+            //var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            //var currentUser = db.Users.Find(currentUserId);
             Ticket ticketToAssign = db.Tickets.Find(ticket.TicketId);
 
             //If the incoming AssignedToUserId is different, update the history
@@ -1040,21 +1080,33 @@ namespace BugTracker2.Controllers
         }
 
         //GET: CreateComment
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         public ActionResult TicketComment()
         {
             return View();
         }
 
         //POST:  CreateComment
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         [HttpPost]
         public ActionResult TicketComment([Bind(Include = "Id,CommentId,Body,TicketId")] TicketComment comment)
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
+
             var userRolesHelper = new UserRolesHelper(db);
             var projectUsersHelper = new ProjectUsersHelper();
-            var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            ApplicationUser currentUser = db.Users.Find(currentUserId);
+            //var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            //ApplicationUser currentUser = db.Users.Find(currentUserId);
             var ticketOwnerId = db.Tickets.Find(comment.TicketId).OwnerUserId;
             var assignedToUserId = db.Tickets.Find(comment.TicketId).AssignedToUserId;
             var ticket = db.Tickets.Find(comment.TicketId);
@@ -1131,7 +1183,7 @@ namespace BugTracker2.Controllers
         }
 
         //GET: TicketAttachment
-        [Authorize(Roles ="Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         public ActionResult TicketAttachment()
         {
 
@@ -1140,11 +1192,21 @@ namespace BugTracker2.Controllers
         }
 
         //POST:  TicketAttachment
-        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Submitter, Admin Demo, Project Manager Demo, Developer Demo, Submitter Demo")]
         [HttpPost]
         public ActionResult TicketAttachment([Bind(Include = "Id,TicketId,FilePath,Description")] TicketAttachment attachment, HttpPostedFileBase file)
         {
             //Permissions code copied from ticket comments
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
 
             if (ModelState.IsValid)
             {
@@ -1152,8 +1214,8 @@ namespace BugTracker2.Controllers
                 var x = attachment.TicketId;
                 var userRolesHelper = new UserRolesHelper(db);
                 var projectUsersHelper = new ProjectUsersHelper();
-                var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
-                ApplicationUser currentUser = db.Users.Find(currentUserId);
+                //var currentUserId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                //ApplicationUser currentUser = db.Users.Find(currentUserId);
 
                 var assignedToUserId = db.Tickets.Find(attachment.TicketId).AssignedToUserId;
                 var ticket = db.Tickets.Find(attachment.TicketId);

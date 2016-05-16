@@ -85,6 +85,9 @@ namespace BugTracker2.Controllers
         {
             var currentUserId = User.Identity.GetUserId();
             var currentUser = db.Users.Find(currentUserId);
+
+
+
             return View(currentUser);
 
         }
@@ -96,6 +99,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ChangeDisplayName(IndexViewModel user)
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             ApplicationUser Model = UserManager.FindById(User.Identity.GetUserId());
 
             Model.DisplayName = user.DisplayName;
@@ -151,6 +165,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> AddPhoneNumber(AddPhoneNumberViewModel model)
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -175,6 +200,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> EnableTwoFactorAuthentication()
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), true);
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
@@ -190,6 +226,16 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DisableTwoFactorAuthentication()
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), false);
             var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
@@ -214,6 +260,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> VerifyPhoneNumber(VerifyPhoneNumberViewModel model)
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -239,6 +296,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> RemovePhoneNumber()
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
+
             var result = await UserManager.SetPhoneNumberAsync(User.Identity.GetUserId(), null);
             if (!result.Succeeded)
             {
@@ -265,6 +333,16 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ChangePassword(ChangePasswordViewModel model)
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -296,6 +374,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SetPassword(SetPasswordViewModel model)
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
+
             if (ModelState.IsValid)
             {
                 var result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
@@ -344,6 +433,17 @@ namespace BugTracker2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LinkLogin(string provider)
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper helper = new UserRolesHelper(db);
+            if (helper.IsUserInRole(currentUserId, "Admin Demo")
+                || helper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || helper.IsUserInRole(currentUserId, "Developer Demo")
+                || helper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
+
             // Request a redirect to the external login provider to link a login for the current user
             return new AccountController.ChallengeResult(provider, Url.Action("LinkLoginCallback", "Manage"), User.Identity.GetUserId());
         }

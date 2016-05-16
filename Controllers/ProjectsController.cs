@@ -20,7 +20,7 @@ namespace BugTracker2.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Index / projects list
-        [Authorize(Roles = "Admin, Project Manager, Developer")]
+        [Authorize(Roles = "Admin, Project Manager, Developer, Admin Demo, Project Manager Demo, Developer Demo")]
         public ActionResult Index()
         {
             //Determine current user role(s) to determine which projects they see
@@ -42,7 +42,7 @@ namespace BugTracker2.Controllers
 
             if (currentUserRoles != null)
                 foreach (var item in currentUserRoles)
-                    if (item == "Admin")
+                    if (item == "Admin" || item == "Admin Demo")
                     {
                         //var projects = db.Projects.ToList();
                         //var projects = db.Projects.ToList();
@@ -62,7 +62,8 @@ namespace BugTracker2.Controllers
                                                            //Default is false
 
                 foreach (var item in currentUserRoles) //test all roles for PM or dev.
-                    if (item == "Project Manager" || item == "Developer")
+                    if (item == "Project Manager" || item == "Developer"
+                        || item == "Project Manager Demo" || item == "Developer Demo")
                         isPMOrDeveloper = true; //if we hit one, set to true
 
                     if(isPMOrDeveloper)
@@ -100,7 +101,7 @@ namespace BugTracker2.Controllers
         }
 
         //GET: Projects/CreateProject
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles="Admin, Admin Demo")]
         public ActionResult CreateProject()
         {
             ProjectUsersHelper helper = new ProjectUsersHelper();
@@ -126,6 +127,17 @@ namespace BugTracker2.Controllers
         [HttpPost]
         public ActionResult CreateProject([Bind(Include = "Id, Name, selected")] ProjectViewModel project)
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             if (String.IsNullOrWhiteSpace(project.Name))
             {
                 ModelState.AddModelError("Name", "A project name is required.");
@@ -155,7 +167,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET: Projects/DeleteProject
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Admin Demo")]
         public ActionResult DeleteProject(int id)
         {
 
@@ -172,18 +184,29 @@ namespace BugTracker2.Controllers
         }
 
         // POST: BlogPosts/DeleteProject
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize(Roles = "Admin, Admin Demo")]
         [HttpPost, ActionName("DeleteProject")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
+
             Project project = db.Projects.FirstOrDefault(p => p.Id == id);
             db.Projects.Remove(project);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        [Authorize(Roles="Admin, Project Manager, Admin Demo, Project Manager Demo")]
         // GET: Projects/EditProject
         public ActionResult EditProject(int id)
         {
@@ -202,12 +225,21 @@ namespace BugTracker2.Controllers
         // POST: BlogPosts/EditComment/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize]
+        [Authorize(Roles="Admin, Project Manager, Admin Demo, Project Manager Demo")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult EditProject([Bind(Include = "Id,Name")] Project project)
         {
-           
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
 
             if (ModelState.IsValid)
             {
@@ -237,7 +269,7 @@ namespace BugTracker2.Controllers
         }
 
         // GET:  Edit Project Users!
-        [Authorize(Roles = "Admin, Project Manager")]
+        [Authorize(Roles = "Admin, Project Manager, Admin Demo, Project Manager Demo")]
         public ActionResult EditProjectUsers(int id)
         {
             //if (id == null)
@@ -263,11 +295,22 @@ namespace BugTracker2.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Project Manager, Admin Demo, Project Manager Demo")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult EditProjectUsers([Bind(Include = "selected, Id, Name, roles")] ProjectUserViewModel model)
         {
+
+            var currentUserId = User.Identity.GetUserId();
+            var currentUser = db.Users.Find(currentUserId);
+
+            UserRolesHelper userRoleshelper = new UserRolesHelper(db);
+            if (userRoleshelper.IsUserInRole(currentUserId, "Admin Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Project Manager Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Developer Demo")
+                || userRoleshelper.IsUserInRole(currentUserId, "Submitter Demo"))
+                return RedirectToAction("Index");
+
             if (ModelState.IsValid)
             {
                 //Declare variable of the application context
