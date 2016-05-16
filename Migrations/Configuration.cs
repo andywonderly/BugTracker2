@@ -73,11 +73,10 @@ namespace BugTracker2.Migrations
 
             context.TicketPriorities.AddOrUpdate(
                 n => n.Name,
-                new TicketPriority { Name = "1 Highest" },
-                new TicketPriority { Name = "2" },
-                new TicketPriority { Name = "3" },
-                new TicketPriority { Name = "4" },
-                new TicketPriority { Name = "5 Lowest" }
+                new TicketPriority { Name = "Low" },
+                new TicketPriority { Name = "Normal" },
+                new TicketPriority { Name = "High" }
+
                 );
 
             context.TicketStatuses.AddOrUpdate(

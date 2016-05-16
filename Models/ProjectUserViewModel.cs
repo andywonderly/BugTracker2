@@ -15,6 +15,7 @@ namespace BugTracker2.Models
         public string DisplayName { get; set; }
         public string Roles { get; set; }
         public string UserId { get; set; }
+
     }
 
 

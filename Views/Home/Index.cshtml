@@ -4,12 +4,12 @@
     ViewBag.Title = "Home Page";
 }
 
-<h2>Welcome to Bugtracker, @Html.ActionLink(Model.UserDisplayName, "Index", "Manage")</h2>
+<h2>Welcome to Bugtracker, @Html.ActionLink(Model.UserDisplayName, "Index", "Manage").</h2>
 
 
 
     <div class="col-md-4" style="padding-left: 0px;">
-        <h4>Your Assigned Tickets</h4>
+        <h4>Your Assigned Tickets (@Html.Raw(Model.UserAssignments.Count))</h4>
         @if(Model.UserAssignments.Count > 0)
         {
             foreach (var item in Model.UserAssignments)
@@ -25,30 +25,38 @@
         } else
         {
             <div class="TicketComment">
-                You are not assigned to any tickets.
+                None.
+                <br />
+                <br />You are not currently assigned to any tickets. 
             </div>
         }
     </div>
     <div class="col-md-4">
-        <h4>Your Projects</h4>
+        <h4>Your Projects (@Html.Raw(Model.UserProjects.Count))</h4>
         @if (Model.UserProjects.Count > 0)
         {
             foreach (var item in Model.UserProjects)
             {
                 <div class="TicketAttachment">
                     @Html.ActionLink(item.Name, "Index", "Projects")
+                    <br />
+                    Project Id: @Html.Raw(item.Id)
+                    <br />
+                    Total users on project: @Html.Raw(item.ProjectUsers.Count)
                 </div>
             }
         } else
         {
             <div class="TicketAttachment">
-                You are not assigned to any projects.
+                None.
+                <br /> 
+                <br /> You are not currently assigned to any projects.
             </div>
         }
 
     </div>
     <div class="col-md-4" style="padding-right: 0px;">
-        <h4>Your Submitted Tickets</h4>
+        <h4>Your Submitted Tickets (@Html.Raw(Model.UserTickets.Count))</h4>
 
         @if (Model.UserTickets.Count > 0)
         {
@@ -59,20 +67,24 @@
                     <br />
                     @if (item.AssignedToUserId != null)
                     {
-                        <p>Assigned to: @Model.AllUsers.FirstOrDefault(n => n.Id == item.AssignedToUserId).DisplayName</p>
+                        
+                        @Html.Raw("Assigned to: " + @Model.AllUsers.FirstOrDefault(n => n.Id == item.AssignedToUserId).DisplayName)
                         <br />
-                        <p>At time: @item.TicketHistories.Last(n => n.Property == "AssignedToUserId").DateTime.LocalDateTime</p>
+                        @Html.Raw("At time: " + @item.TicketHistories.Last(n => n.Property == "AssignedToUserId").DateTime.LocalDateTime)
                     }
                     else
                     {
-                        <p>Assigned to: none</p>
+                        <br />
+                        @Html.Raw("Assigned to:  none.")
                     }
                 </div>
              }
          } else
          {
                 <div class="TicketHistory">
-                    You have no submitted tickets.
+                    None.
+                    <br />
+                    <br />There are no existing tickets that you have submitted.
                 </div>
          }
     </div>

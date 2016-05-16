@@ -21,7 +21,8 @@ namespace BugTracker2.Models
         //public MultiSelectList users { get; set; }
         //public string selected { get; set; }
 
-        [ForeignKey("Projects_Id")]
+            //Just now commented out this line
+        //[ForeignKey("Projects_Id")]
         public virtual ICollection<ApplicationUser> ProjectUsers { get; set; }
         public virtual ICollection<Ticket> ProjectTickets { get; set; }
         //public virtual ICollection<ApplicationUser> ProjectDevelopers { get; set; }

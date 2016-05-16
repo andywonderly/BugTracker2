@@ -25,11 +25,15 @@ namespace BugTracker2.Models
         //public virtual ICollection<Projects> ProjectsDeveloped { get; set; }
         
         //public virtual ICollection<Projects> ProjectsMemberOf { get; set; }
-        public virtual ICollection<Ticket> Tickets { get; set; }
-        [ForeignKey("TicketOwnerId")]
-        public virtual ICollection<Ticket> TicketsOwned { get; set; }
-        [ForeignKey("TicketAssigneeId")]
-        public virtual ICollection<Ticket> TicketsAssignedTo { get; set; }
+
+
+        //public virtual ICollection<Ticket> Tickets { get; set; }
+        //[ForeignKey("TicketOwnerId")]
+        //public virtual ICollection<Ticket> TicketsOwned { get; set; }
+        //[ForeignKey("TicketAssigneeId")]
+        //public virtual ICollection<Ticket> TicketsAssignedTo { get; set; }
+        
+        
         //[ForeignKey("ProjectDeveloperId")]
         //public virtual ICollection<ApplicationUser> ProjectDevelopers { get; set; }
         //public string UserProjectId { get; set; }

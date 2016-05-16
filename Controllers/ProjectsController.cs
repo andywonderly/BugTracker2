@@ -259,6 +259,7 @@ namespace BugTracker2.Controllers
             model.selected = helper.ListProjectUsers(id).ToArray();
             model.users = new MultiSelectList(db.Users, "DisplayName", "DisplayName", model.selected);
             model.Name = project.Name;
+            
             return View(model);
         }
 

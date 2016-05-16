@@ -385,9 +385,17 @@ namespace BugTracker2.Controllers
                 temp.TicketStatusName = db.TicketStatuses.FirstOrDefault(n => n.Id.ToString() == item.TicketStatusId).Name;
                 temp.TicketPriorityName = db.TicketPriorities.FirstOrDefault(n => n.Id.ToString() == item.TicketPriorityId).Name;
                 temp.TicketTypeName = db.TicketTypes.FirstOrDefault(n => n.Id.ToString() == item.TicketTypeId).Name;
-                temp.ProjectName = item.TicketProject.Name;
-                if (item.TicketProject.ProjectManagerUserId != null)
-                    temp.ProjectManager = db.Users.Find(item.TicketProject.ProjectManagerUserId).DisplayName;
+
+                Project ticketProject = db.Projects.FirstOrDefault(n => n.Id.ToString() == item.ProjectId);
+
+                //temp.ProjectName = db.Projects.First(n => n.Id == item.Id).Name;
+                temp.ProjectName = ticketProject.Name;
+
+                //The following code is unused....we don't do anything with ProjectManagerUserId
+                //since there can be multiple project managers
+                //if (item.TicketProject.ProjectManagerUserId != null)
+                //temp.ProjectManager = db.Users.Find(item.TicketProject.ProjectManagerUserId).DisplayName;
+
                 temp.Created = item.Created;
                 temp.Updated = item.Updated;
                 //ADD CODE TO DISPLAY NOTIFICATION IF ASSIGNED USER IS NO LONGER A DEV
@@ -399,8 +407,8 @@ namespace BugTracker2.Controllers
                 if (currentUserId == item.AssignedToUserId)
                     temp.CurrentUserIsAssignedDev = true;
 
-                if (currentUserId == item.TicketProject.ProjectManagerUserId)
-                    temp.CurrentUserIsProjectManager = true;
+                //if (currentUserId == ticketProject.ProjectManagerUserId)
+                //    temp.CurrentUserIsProjectManager = true;
 
                 ticketsViewModel.Add(temp);
 
@@ -632,26 +640,34 @@ namespace BugTracker2.Controllers
             
 
             var id2 = id.GetValueOrDefault();
-
+            Ticket ticket = db.Tickets.Find(id);
             var ticketUsershelper = new TicketUsersHelper();
 
-            //If user is a submitter
-            if (this.User.IsInRole("Submitter") && ticketUsershelper.IsUserOnTicket(id2, currentUserId))
+            //If user is a submitter.  This code should never engage because the curernt
+            //authorize tag does not include submitters.
+            if ((this.User.IsInRole("Submitter") && !ticketUsershelper.IsUserOnTicket(id2, currentUserId)) 
+                && !this.User.IsInRole("Admin") && !this.User.IsInRole("Developer")
+                && !this.User.IsInRole("Project Manager"))
             {
                 return RedirectToAction("Index");
             }
-
-            
-
-            Ticket ticket = db.Tickets.Find(id);
-            TicketViewModel ticketsViewModel = new TicketViewModel();
-            TicketsHelper ticketsHelper = new TicketsHelper();
 
             if (this.User.IsInRole("Developer") && !this.User.IsInRole("Admin") && !this.User.IsInRole("Project Manager"))
             {
                 if(currentUser.Id != ticket.AssignedToUserId)
                     return RedirectToAction("Index");
             }
+
+            if ((this.User.IsInRole("Project Manager") && !ticketUsershelper.IsUserOnTicket(id2, currentUserId))
+                && !this.User.IsInRole("Admin"))
+                return RedirectToAction("Index");
+
+
+
+            
+            TicketViewModel ticketsViewModel = new TicketViewModel();
+            TicketsHelper ticketsHelper = new TicketsHelper();
+
 
             ticketsViewModel.Description = ticket.Description;
             ticketsViewModel.Id = ticket.Id;
@@ -769,7 +785,7 @@ namespace BugTracker2.Controllers
                 return HttpNotFound();
             }
 
-
+            
             return View(ticketsViewModel);
         }
 

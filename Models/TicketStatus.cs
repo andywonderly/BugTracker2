@@ -9,6 +9,6 @@ namespace BugTracker2.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public virtual Ticket Ticket { get; set; }
+        //public virtual Ticket Ticket { get; set; }
     }
 }

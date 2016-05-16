@@ -4,10 +4,28 @@
     ViewBag.Title = "Edit Project Users";
 }
 
-<h2>@ViewBag.Title</h2>
-<h2>Project name: @Model.Name</h2>
+<h2>@ViewBag.Title: @Model.Name</h2>
 
+<div>
+    Current users:
+    <ul>
+        @if(Model.selected.Length > 0)
+        { 
+            foreach (var item in Model.selected)
+            {
+                <li>
+                    @Html.Raw(item)
+                </li>
+            }
+        }
+        else
+        {
+            @Html.Raw("None.")
+        }
+     </ul>
 
+</div>
+<br />
 
 @using (Html.BeginForm("EditProjectUsers", "Projects", FormMethod.Post))
 {
@@ -18,11 +36,12 @@
         @Html.ListBoxFor(x => x.selected, Model.users, new { size = 10 })
         @Html.HiddenFor(model => model.Id)
         @Html.HiddenFor(model => Model.Name)
-
+        <br />
         <input type="submit" value="Submit" />
     </div>
 }
 
+<br />
 <div>
     @Html.ActionLink("Back to project list", "Index")
 </div>

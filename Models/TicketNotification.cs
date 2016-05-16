@@ -11,6 +11,6 @@ namespace BugTracker2.Models
         public int TicketID { get; set; }
         public int UserId { get; set; }
 
-        public virtual Ticket Ticket { get; set; }
+        //public virtual Ticket Ticket { get; set; }
     }
 }
